@@ -1,7 +1,4 @@
 import yaml
-import os
-
-path = os.getcwd() + "\\export-script"
 
 
 class config:

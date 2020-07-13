@@ -4,9 +4,6 @@ from .ldap import *
 from ldap3.core.exceptions import LDAPSocketOpenError
 from requests.exceptions import ConnectionError
 from .config import *
-import os
-
-path = os.getcwd() + "\\export-script"
 
 PERMISSION_MAP = {
     "View": 1,

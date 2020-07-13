@@ -2,8 +2,6 @@ import os
 import random
 import string
 
-path = os.getcwd() + "\\export-script"
-
 
 def get_random_alphanumerical():
     """
