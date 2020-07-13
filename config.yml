@@ -1,0 +1,14 @@
+config:
+  grafana:
+    url: localhost:3000
+    user: admin
+    password: admin
+  ldap:
+    url: ldap://localhost:389
+    baseDB: ou=people,dc=planetexpress,dc=com
+    groupDescriptor: ou
+    groupSearchFilter: ()
+    login: cn=admin,dc=planetexpress,dc=com
+    password: GoodNewsEveryone
+  csvPath: test.csv
+
