@@ -101,6 +101,7 @@ def remove_users(grafana_team, ldap_groups):
     :param ldap_groups: The names of the ldap groups containing the users that should be present in the grafana-group.
     :return: An array containing all users that need to be removed from the grafana-team.
     """
+    # TODO SIMPLIFY THIS METHOD
     grafana_users = get_members_of_team(grafana_team)
     ldap_users = []
     for ldap_group in ldap_groups:
@@ -153,7 +154,7 @@ def update_folders(folders):
             "permissions": [
             {
                 "teamId": *team-name*,
-                "permission0: *permission*"
+                "permission: *permission*"
 
             },
             ....
@@ -244,7 +245,6 @@ def export():
             update_folders(mapping["folders"])
             remove_unused_items(mapping["teams"])
         except LDAPSocketOpenError as e:
-            e.with_traceback()
             print("Task aborted, unable to reach LDAP-Server.")
         except ConnectionError:
             print("Task aborted, unable to reach Grafana-Server.")

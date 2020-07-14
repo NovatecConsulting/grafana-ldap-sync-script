@@ -38,4 +38,4 @@ def get_user_attr(user, attribute):
     :param attribute: The attribute which should be retrieved from the user.
     :return:The value found in the given attribute stripped off of unwanted pre- and suffixes.
     """
-    return str(user["raw_attributes"][attribute][0])[2: len(user["raw_attributes"][attribute][0]) + 2]
+    return str(user["attributes"][attribute][0])

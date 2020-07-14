@@ -20,7 +20,7 @@ def delete_team_by_name(name):
     """
     Deletes a team with a given name.
     :param name: The name if the Team to be deleted.
-    :return: Returns True if the team was deleted. Otherwise returns False.
+    :return: Returns True if the team to be deleted existed, returns False if it did not.
     """
     team_data = grafana_api.teams.get_team_by_name(name)
     if len(team_data) > 0:
@@ -148,7 +148,7 @@ def get_id_of_team(team):
     """
     Returns the id of the grafana team with the given name.
     :param team: The name of the grafana team.
-    :return: The id of the grafana team with the given name.
+    :return: The id of the grafana team with the given name. Returns False if the Team does not exist.
     """
     teams = grafana_api.teams.get_team_by_name(team)
     if len(teams) < 1:
