@@ -13,10 +13,10 @@ class config:
     LDAP_USER = ""
     LDAP_PASSWORD = ""
     LDAP_USER_SEARCH_BASE = ""
-    LDAP_GROUP_DESCRIPTOR = "ou"
+    LDAP_GROUP_DESCRIPTOR = ""
     LDAP_GROUP_SEARCH_FILTER = ""
 
-    CSV_FILE = "./test.csv"
+    CSV_FILE = ""
 
     def load_config(self):
         """
@@ -35,3 +35,4 @@ class config:
         self.LDAP_USER_SEARCH_BASE = config["ldap"]["baseDB"]
         self.LDAP_GROUP_SEARCH_FILTER = config["ldap"]["groupSearchFilter"]
         self.LDAP_GROUP_DESCRIPTOR = config["ldap"]["groupDescriptor"]
+        self.CSV_FILE = config["csvPath"]

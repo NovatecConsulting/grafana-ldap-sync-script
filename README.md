@@ -16,11 +16,12 @@ python run.py
 ## Usage
 
 #### Config
-Before starting the script, you need to enter your grafana & ldap credentials in the config.yml file.
+Before starting the script you need to enter your grafana & ldap credentials in the config.yml file and add the path to 
+the .csv file containing the bindings to the config.yml.
 
 #### Binding
-To bind LDAP-Groups to Grafana-Teams and grant these teams access to folders, you need to provide a csv-file. Please note, that the first row of the csv is 
-recognized as a header-row and is therefore being ignored. 
+To bind LDAP-Groups to Grafana-Teams and grant these teams access to folders you need to provide a csv-file. Please note 
+that the first row of the csv is recognized as a header-row and is therefore being ignored. 
 The file needs to contain the following information in this exact order: 
 <br> 
 LDAP-Group, Grafana-Team Name, Grafana-Team ID, Grafana-Folder ID, Grafana-Folder UUID, Grafana-Folder Permission
