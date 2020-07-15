@@ -1,9 +1,15 @@
 import csv
+import sys
+import logging
+
 from .grafana import *
 from .ldap import *
 from ldap3.core.exceptions import LDAPSocketOpenError
 from requests.exceptions import ConnectionError
 from .config import *
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("grafana-ldap-sync-script")
 
 PERMISSION_MAP = {
     "View": 1,
@@ -236,6 +242,7 @@ def export():
     """
     global configuration
     if lock():
+        logger.info("Starting task...")
         configuration = config()
         setup_grafana()
         setup_ldap()
@@ -245,10 +252,12 @@ def export():
             update_folders(mapping["folders"])
             remove_unused_items(mapping["teams"])
         except LDAPSocketOpenError:
-            print("Task aborted, unable to reach LDAP-Server.")
+            logger.error("Task aborted, unable to reach LDAP-Server.")
         except ConnectionError:
-            print("Task aborted, unable to reach Grafana-Server.")
+            logger.error("Task aborted, unable to reach Grafana-Server.")
+        except:
+            logger.error("An unexpected error occured: %s", str(sys.exc_info()))
         unlock()
+        logger.info("Task finished successfully!")
     else:
-        print("Could not perfom task. Lock is active.")
-
+        logger.error("Could not perfom task. Lock is active.")
