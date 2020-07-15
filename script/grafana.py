@@ -1,4 +1,4 @@
-from grafana_api.grafana_api import GrafanaClientError
+from grafana_api.grafana_api import GrafanaClientError, GrafanaBadInputError
 from grafana_api.grafana_face import GrafanaFace
 from .config import *
 from .helpers import *
@@ -7,7 +7,7 @@ grafana_api = ""
 configuration = ""
 
 
-def setup_connection():
+def setup_grafana():
     global grafana_api, configuration
     configuration = config()
     grafana_api = GrafanaFace(
@@ -49,8 +49,6 @@ def create_user_with_random_pw(user):
     :param user: The dictionary off of which the user should be created.
     """
     grafana_api.admin.create_user({
-        "name": user["name"],
-        "email": user["mail"],
         "login": user["login"],
         "password": get_random_alphanumerical(),
         "OrgId": 1
@@ -88,7 +86,10 @@ def add_user_to_team(login, team):
     :param login: The login of the user to be added to the team.
     :param team: The team the user should be added to.
     """
-    grafana_api.teams.add_team_member(get_id_of_team(team), get_id_by_login(login))
+    try:
+        grafana_api.teams.add_team_member(get_id_of_team(team), get_id_by_login(login))
+    except GrafanaBadInputError:
+        return False
 
 
 def get_members_of_team(team):
@@ -100,8 +101,9 @@ def get_members_of_team(team):
     """
     result = []
     users = grafana_api.teams.get_team_members(grafana_api.teams.get_team_by_name(team)[0]["id"])
-    for user in users:
-        result.append({"name": user["name"], "mail": user["email"], "login": user["login"]})
+    if users is not None:
+        for user in users:
+            result.append({"login": user["login"]})
     return result
 
 
@@ -174,4 +176,9 @@ def get_all_users():
     """
     Returns all users present in the connected grafana instance.
     """
-    return grafana_api.users.search_users()
+    user_logins = []
+    users = grafana_api.users.search_users()
+    if users is not None:
+        for user in users:
+            user_logins.append({"login": user["login"]})
+    return user_logins

@@ -83,17 +83,13 @@ class get_members_of_team(TestCase):
     @patch("script.grafana.grafana_api")
     def test_returns_members_correctly(self, mock_grafana_api):
         mock_grafana_api.teams.get_team_members = Mock()
-        mock_grafana_api.teams.get_team_members.return_value = [{"name": "user",
-                                                                 "email": "user_mail",
-                                                                 "login": "user_login",
-                                                                 "something_else": "don't save me"}
+        mock_grafana_api.teams.get_team_members.return_value = [{"login": "user_login",
+                                                                 }
                                                                 ]
 
         output = grafana.get_members_of_team("my_team")
 
-        self.assertEqual(output, [{"name": "user",
-                                   "mail": "user_mail",
-                                   "login": "user_login", }])
+        self.assertEqual(output, [{"login": "user_login"}])
 
 
 class login_taken(TestCase):

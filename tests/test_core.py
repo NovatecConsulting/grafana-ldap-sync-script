@@ -360,20 +360,22 @@ class delete_unmapped_users(TestCase):
 class export(TestCase):
     @patch("script.core.lock")
     @patch("script.core.config")
-    @patch("script.core.setup_connection")
+    @patch("script.core.setup_grafana")
     @patch("script.core.read_mapping_from_csv")
     @patch("script.core.update_teams")
     @patch("script.core.update_folders")
     @patch("script.core.remove_unused_items")
     @patch("script.core.unlock")
-    def test_locks_and_unlocks(self, mock_unlock, mock_remove_unused_items, mock_update_folders, mock_update_teams,
-                               mock_read_mapping_from_csv, mock_setup_connection, mock_config, mock_lock):
+    @patch("script.core.setup_ldap")
+    def test_locks_and_unlocks(self, mock_setup_ldap, mock_unlock, mock_remove_unused_items, mock_update_folders, mock_update_teams,
+                               mock_read_mapping_from_csv, mock_setup_grafana, mock_config, mock_lock):
+        mock_setup_ldap.return_value = True
         mock_unlock.return_value = True
         mock_remove_unused_items.return_value = True
         mock_update_folders.return_value = True
         mock_update_teams.return_value = True
         mock_read_mapping_from_csv.return_value = {"teams": {}, "folders": {}}
-        mock_setup_connection.return_value = True
+        mock_setup_grafana.return_value = True
         mock_config.return_value = True
         mock_lock.return_value = True
 
@@ -384,20 +386,22 @@ class export(TestCase):
 
     @patch("script.core.lock")
     @patch("script.core.config")
-    @patch("script.core.setup_connection")
+    @patch("script.core.setup_grafana")
     @patch("script.core.read_mapping_from_csv", side_effect=ConnectionError('whoops'))
     @patch("script.core.update_teams")
     @patch("script.core.update_folders")
     @patch("script.core.remove_unused_items")
     @patch("script.core.unlock")
-    def test_locks_and_unlocks_on_connection_error(self, mock_unlock, mock_remove_unused_items, mock_update_folders,
-                                                   mock_update_teams, mock_read_mapping_from_csv, mock_setup_connection,
+    @patch("script.core.setup_ldap")
+    def test_locks_and_unlocks_on_connection_error(self, mock_setup_ldap, mock_unlock, mock_remove_unused_items, mock_update_folders,
+                                                   mock_update_teams, mock_read_mapping_from_csv, mock_setup_grafana,
                                                    mock_config, mock_lock):
+        mock_setup_ldap.return_value = True
         mock_unlock.return_value = True
         mock_remove_unused_items.return_value = True
         mock_update_folders.return_value = True
         mock_read_mapping_from_csv.return_value = {"teams": {}, "folders": {}}
-        mock_setup_connection.return_value = True
+        mock_setup_grafana.return_value = True
         mock_config.return_value = True
         mock_lock.return_value = True
 
@@ -408,21 +412,23 @@ class export(TestCase):
 
     @patch("script.core.lock")
     @patch("script.core.config")
-    @patch("script.core.setup_connection")
+    @patch("script.core.setup_grafana")
     @patch("script.core.read_mapping_from_csv")
     @patch("script.core.update_teams", side_effect=LDAPSocketOpenError('whoops'))
     @patch("script.core.update_folders")
     @patch("script.core.remove_unused_items")
     @patch("script.core.unlock")
-    def test_locks_and_unlocks_on_LDAPSocketOpenError(self, mock_unlock, mock_remove_unused_items, mock_update_folders,
+    @patch("script.core.setup_ldap")
+    def test_locks_and_unlocks_on_LDAPSocketOpenError(self, mock_setup_ldap, mock_unlock, mock_remove_unused_items, mock_update_folders,
                                                       mock_update_teams, mock_read_mapping_from_csv,
-                                                      mock_setup_connection,
+                                                      mock_setup_grafana,
                                                       mock_config, mock_lock):
+        mock_setup_ldap.return_value = True
         mock_unlock.return_value = True
         mock_remove_unused_items.return_value = True
         mock_update_folders.return_value = True
         mock_read_mapping_from_csv.return_value = {"teams": {}, "folders": {}}
-        mock_setup_connection.return_value = True
+        mock_setup_grafana.return_value = True
         mock_config.return_value = True
         mock_lock.return_value = True
 
@@ -433,7 +439,7 @@ class export(TestCase):
 
     @patch("script.core.lock")
     @patch("script.core.config")
-    @patch("script.core.setup_connection")
+    @patch("script.core.setup_grafana")
     @patch("script.core.read_mapping_from_csv")
     @patch("script.core.update_teams")
     @patch("script.core.update_folders")
@@ -441,13 +447,13 @@ class export(TestCase):
     @patch("script.core.unlock")
     def test_nothing_called_when_locked(self, mock_unlock, mock_remove_unused_items, mock_update_folders,
                                         mock_update_teams, mock_read_mapping_from_csv,
-                                        mock_setup_connection,
+                                        mock_setup_grafana,
                                         mock_config, mock_lock):
         mock_unlock.return_value = True
         mock_remove_unused_items.return_value = True
         mock_update_folders.return_value = True
         mock_read_mapping_from_csv.return_value = {"teams": {}, "folders": {}}
-        mock_setup_connection.return_value = True
+        mock_setup_grafana.return_value = True
         mock_config.return_value = True
         mock_lock.return_value = False
 
@@ -458,6 +464,6 @@ class export(TestCase):
         assert not mock_update_folders.called
         assert not mock_update_teams.called
         assert not mock_read_mapping_from_csv.called
-        assert not mock_setup_connection.called
+        assert not mock_setup_grafana.called
         assert not mock_config.called
         assert not mock_unlock.called

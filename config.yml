@@ -4,11 +4,14 @@ config:
     user: admin
     password: admin
   ldap:
-    url: ldap://localhost:389
-    baseDB: ou=people,dc=planetexpress,dc=com
+    useNTML: True
+    url: ldap.forumsys.com
+    searchBase: dc=example,dc=com
     groupDescriptor: ou
     groupSearchFilter: ()
-    login: cn=admin,dc=planetexpress,dc=com
-    password: GoodNewsEveryone
+    memberAttributeName: uniqueMember
+    userLoginAttribute: uid
+    login: cn=read-only-admin,dc=example,dc=com
+    password: password
   csvPath: test.csv
 

@@ -1,9 +1,14 @@
-from ldap3 import Server, Connection, ALL, SUBTREE
+from ldap3 import Server, Connection, ALL, SUBTREE, NTLM
 
-from .helpers import get_user_attr
 from .config import config
 
 configuration = ""
+user_cache = {}
+
+
+def setup_ldap():
+    global configuration
+    configuration = config()
 
 
 def get_ldap_connection():
@@ -11,31 +16,57 @@ def get_ldap_connection():
     Creates a connection to the ldap-server provided in the config. Uses ldap3.
     :return: A ldap3 connection object.
     """
-    global configuration
-    configuration = config()
     server = Server(configuration.LDAP_SERVER_URL, get_info=ALL)
-    return Connection(server, configuration.LDAP_USER, configuration.LDAP_PASSWORD, auto_bind=True)
+    return Connection(server, configuration.LDAP_USER, configuration.LDAP_PASSWORD, auto_bind=True, read_only=True)
 
 
-def get_users_of_group(group):
+def get_ntlm_connection():
+    """
+    Creates a connection to a server using NTLM authentication. Uses ldap3
+    :return: A ldap3 connection object with authentication set to NTLM.
+    """
+    server = Server(configuration.LDAP_SERVER_URL, get_info=ALL)
+    return Connection(server, user=configuration.LDAP_SERVER_URL + "\\" + configuration.LDAP_USER,
+                      password=configuration.LDAP_PASSWORD, authentication=NTLM, read_only=True)
+
+
+def fetch_users_of_group(group):
     """
     Searches all users of a specified group in the provided ldap-server. Returns the user objects as an array of
-    dictionaries. Each dictionary resembles one user object with the values "name", "mail" and "login"
+    dictionaries. Each dictionary resembles one user object containing the value "login".
     :param group: The LDAP-group the users should be searched in.
     :return: An array containing dictionaries each of which defines a user found in the provided group.
     """
     result = []
-    users = get_ldap_connection().extend.standard.paged_search(search_base=configuration.LDAP_USER_SEARCH_BASE,
-                                                               search_filter="( "
-                                                                             + configuration.LDAP_GROUP_DESCRIPTOR
-                                                                             + "="
-                                                                             + group
-                                                                             + ")",
-                                                               search_scope=SUBTREE,
-                                                               attributes=["cn", "mail", "uid"],
-                                                               paged_size=5,
-                                                               generator=True)
-    for user in users:
-        result.append({"name": get_user_attr(user, "cn"), "mail": get_user_attr(user, "mail"),
-                       "login": get_user_attr(user, "uid")})
+    if configuration.LDAP_IS_NTLM:
+        connection = get_ntlm_connection()
+    else:
+        connection = get_ldap_connection()
+    connection.bind()
+    groups = connection.extend.standard.paged_search(search_base=configuration.LDAP_GROUP_SEARCH_BASE,
+                                                     search_filter="(cn="
+                                                                   + group
+                                                                   + ")",
+                                                     search_scope=SUBTREE,
+                                                     attributes=[configuration.LDAP_MEMBER_ATTRIBUTE],
+                                                     paged_size=5,
+                                                     generator=True)
+    for group in groups:
+        for user in group["attributes"][configuration.LDAP_MEMBER_ATTRIBUTE]:
+            result.append({"login": user.split(",")[0].replace(configuration.LDAP_USER_LOGIN_ATTRIBUTE + "=", "")})
+    connection.unbind()
     return result
+
+
+def get_users_of_group(group):
+    """
+    Returns all users found in the ldap group with the given name. If the group is already cached, the users are
+    returned from the cache. Otherwise fetch_users_of_group is called with the group's name as parameter. The return
+    value then is cached.
+    :param group: The name of the group the users should be returned of.
+    :return: A list containing dictionaries. Each dictionary consists of a login attribute and the respective user
+    login.
+    """
+    if group not in user_cache:
+        user_cache[group] = fetch_users_of_group(group)
+    return user_cache[group]

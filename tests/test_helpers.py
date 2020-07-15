@@ -36,11 +36,3 @@ class unlock(TestCase):
 
         self.assertTrue(mock_remove.called)
 
-
-class get_user_attr(TestCase):
-    def test_returns_attributes_correctly(self):
-        user = {"attributes": {"my_attribute": ["my_value"]}}
-
-        output = helpers.get_user_attr(user, "my_attribute")
-
-        self.assertEqual(output, "my_value")

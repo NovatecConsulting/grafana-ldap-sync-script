@@ -12,10 +12,12 @@ class config:
     LDAP_SERVER_URL = ""
     LDAP_USER = ""
     LDAP_PASSWORD = ""
-    LDAP_USER_SEARCH_BASE = ""
+    LDAP_GROUP_SEARCH_BASE = ""
     LDAP_GROUP_DESCRIPTOR = ""
     LDAP_GROUP_SEARCH_FILTER = ""
-
+    LDAP_MEMBER_ATTRIBUTE = ""
+    LDAP_USER_LOGIN_ATTRIBUTE = ""
+    LDAP_IS_NTLM = False
     CSV_FILE = ""
 
     def load_config(self):
@@ -32,7 +34,10 @@ class config:
         self.LDAP_SERVER_URL = config["ldap"]["url"]
         self.LDAP_USER = config["ldap"]["login"]
         self.LDAP_PASSWORD = config["ldap"]["password"]
-        self.LDAP_USER_SEARCH_BASE = config["ldap"]["baseDB"]
+        self.LDAP_GROUP_SEARCH_BASE = config["ldap"]["searchBase"]
         self.LDAP_GROUP_SEARCH_FILTER = config["ldap"]["groupSearchFilter"]
         self.LDAP_GROUP_DESCRIPTOR = config["ldap"]["groupDescriptor"]
+        self.LDAP_MEMBER_ATTRIBUTE = config["ldap"]["memberAttributeName"]
+        self.LDAP_USER_LOGIN_ATTRIBUTE = config["ldap"]["userLoginAttribute"]
+        self.LDAP_IS_NTLM = config["ldap"]["useNTML"]
         self.CSV_FILE = config["csvPath"]
