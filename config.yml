@@ -24,5 +24,5 @@ config:
     # Password for the LDAP-Server.
     password: password
   # Path to the .csv file in which the bindings are defined.
-  csvPath: test.csv
+  csvPath: example.csv
 

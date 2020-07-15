@@ -131,5 +131,4 @@ dmypy.json
 
 # Project-specific
 .lock
-*.csv
 .idea

@@ -1,0 +1,7 @@
+ZBV/LDAP-Gruppe,Grafana-Team-Name,Grafana-Team-ID,Grafana-Folder-Name,Grafana-Folder-UUID,Grafana-Folder-Permissions
+mathematicians,mathematicians,2,math,math_folder,Admin
+mathematicians,smart people,2,all,all,View
+scientists,scientists,2,science,science_folder,Admin
+scientists,smart people,2,all,all,View
+chemists,chemists,2,chemistry,chemistry_folder,Admin
+chemists,smart people,2,all,all,View
