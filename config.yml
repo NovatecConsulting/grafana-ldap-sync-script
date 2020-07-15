@@ -1,17 +1,28 @@
 config:
   grafana:
+    # URL of the target grafana-server.
     url: localhost:3000
+    # User account name with admin rights on target grafana-server.
     user: admin
+    # Password of account with admin rights on target grafana-server.
     password: admin
   ldap:
-    useNTML: True
+    # Set to True if NTLM should be used for LDAP.
+    useNTLM: True
+    # URL of the source LDAP-Server.
     url: ldap.forumsys.com
+    # Group search-base of the source LDAP-Server.
     searchBase: dc=example,dc=com
-    groupDescriptor: ou
-    groupSearchFilter: ()
+    # Filter that should be used for the group search.
+    groupSearchFilter: (objectClass=groupOfUniqueNames)
+    # Attribute name under which the members of a group object can be found.
     memberAttributeName: uniqueMember
+    # Name of the attribute which should be used as login in grafana.
     userLoginAttribute: uid
+    # Login for the LDAP-Server.
     login: cn=read-only-admin,dc=example,dc=com
+    # Password for the LDAP-Server.
     password: password
+  # Path to the .csv file in which the bindings are defined.
   csvPath: test.csv
 

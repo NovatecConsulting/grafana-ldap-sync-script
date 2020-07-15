@@ -44,8 +44,10 @@ def fetch_users_of_group(group):
         connection = get_ldap_connection()
     connection.bind()
     groups = connection.extend.standard.paged_search(search_base=configuration.LDAP_GROUP_SEARCH_BASE,
-                                                     search_filter="(cn="
+                                                     search_filter="(&(cn="
                                                                    + group
+                                                                   + ")"
+                                                                   + configuration.LDAP_GROUP_SEARCH_FILTER
                                                                    + ")",
                                                      search_scope=SUBTREE,
                                                      attributes=[configuration.LDAP_MEMBER_ATTRIBUTE],
