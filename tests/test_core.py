@@ -93,8 +93,8 @@ class add_users(TestCase):
 
         core.add_users("grafana_team", ldap_groups)
 
-        assert not mock_create_user_with_random_pw.called
-        assert not mock_add_user_to_team.called
+        self.assertFalse(mock_create_user_with_random_pw.called)
+        self.assertFalse(mock_add_user_to_team.called)
 
     @patch("script.core.get_members_of_team")
     @patch("script.core.get_users_of_group")
@@ -112,8 +112,8 @@ class add_users(TestCase):
 
         core.add_users("grafana_team", ldap_groups)
 
-        assert not mock_create_user_with_random_pw.called
-        assert not mock_add_user_to_team.called
+        self.assertFalse(mock_create_user_with_random_pw.called)
+        self.assertFalse(mock_add_user_to_team.called)
 
 
 class remove_users(TestCase):
@@ -140,7 +140,7 @@ class remove_users(TestCase):
 
         core.remove_users("grafana_team", ["group1", "group2"])
 
-        assert not mock_remove_member_from_team.called
+        self.assertFalse(mock_remove_member_from_team.called)
 
     @patch("script.core.get_members_of_team")
     @patch("script.core.get_users_of_group")
@@ -197,7 +197,7 @@ class update_teams(TestCase):
 
         core.update_teams({"grafana_team": {"ldap": []}})
 
-        assert not mock_create_team.called
+        self.assertFalse(mock_create_team.called)
 
     @patch("script.core.create_team")
     @patch("script.core.add_users")
@@ -313,7 +313,7 @@ class delete_unmapped_teams(TestCase):
 
         core.delete_unmapped_teams(test_mapping)
 
-        assert not mock_delete_team_by_name.called
+        self.assertFalse(mock_delete_team_by_name.called)
 
 
 class get_users_of_used_ldap_groups(TestCase):
@@ -354,7 +354,7 @@ class delete_unmapped_users(TestCase):
 
         core.delete_unmapped_users({})
 
-        assert not mock_delete_user_by_login.called
+        self.assertFalse(mock_delete_user_by_login.called)
 
 
 class export(TestCase):
@@ -460,10 +460,10 @@ class export(TestCase):
         core.export()
 
         self.assertEqual(mock_lock.call_count, 1)
-        assert not mock_remove_unused_items.called
-        assert not mock_update_folders.called
-        assert not mock_update_teams.called
-        assert not mock_read_mapping_from_csv.called
-        assert not mock_setup_grafana.called
-        assert not mock_config.called
-        assert not mock_unlock.called
+        self.assertFalse(mock_remove_unused_items.called)
+        self.assertFalse(mock_update_folders.called)
+        self.assertFalse(mock_update_teams.called)
+        self.assertFalse(mock_read_mapping_from_csv.called)
+        self.assertFalse(mock_setup_grafana.called)
+        self.assertFalse(mock_config.called)
+        self.assertFalse(mock_unlock.called)

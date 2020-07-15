@@ -26,7 +26,7 @@ class delete_team_by_name(TestCase):
         output = grafana.delete_team_by_name("my_team")
 
         self.assertEqual(output, False)
-        assert not mock_grafana_api.teams.delete_team.called
+        self.assertFalse(mock_grafana_api.teams.delete_team.called)
 
 
 class delete_user_by_login(TestCase):
