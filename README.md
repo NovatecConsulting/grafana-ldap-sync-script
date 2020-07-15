@@ -14,20 +14,24 @@ python run.py
 ```
 
 ## Usage
+If you just want to test the script, there is an example.csv predefined. Just enter your grafana credentials in the config.yml.
+The used LDAP-Server can be found [here](https://www.forumsys.com/tutorials/integration-how-to/ldap/online-ldap-test-server/).
 
 #### Config
-Before starting the script you need to enter your grafana & ldap credentials in the config.yml file and add the path to 
-the .csv file containing the bindings to the config.yml.
+Before starting the script you need to enter your grafana & ldap credentials in the config.yml. You also need to add the
+path to your .csv file containing the bindings.
 
 #### Binding
-To bind LDAP-Groups to Grafana-Teams and grant these teams access to folders you need to provide a csv-file. Please note 
+To bind LDAP-groups to grafana-teams and grant these teams access to folders you need to provide a .csv file. Please note 
 that the first row of the csv is recognized as a header-row and is therefore being ignored. 
 The file needs to contain the following information in this exact order: 
 <br> 
+```CSV
 LDAP-Group, Grafana-Team Name, Grafana-Team ID, Grafana-Folder ID, Grafana-Folder UUID, Grafana-Folder Permission
+```
+Missing folders, teams and users will be created by the script.
 <br>
-<br>
-Possible permissions are:
+Possible Grafana-Folder permissions are:
 - View
 - Edit 
 - Admin
