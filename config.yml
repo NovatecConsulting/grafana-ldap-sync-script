@@ -16,14 +16,23 @@ config:
     # Set to True if NTLM should be used for LDAP.
     useNTLM: True
 
+    # If True, SSL will be used for connection to LDAP.
+    useSSL: False
+
     # URL of the source LDAP-Server.
     url: ldap.forumsys.com
 
+    port: 389
+
     # Group search-base of the source LDAP-Server.
-    searchBase: dc=example,dc=com
+    groupSearchBase: dc=example,dc=com
 
     # Filter that should be used for the group search.
-    groupSearchFilter: (objectClass=groupOfUniqueNames)
+    groupSearchFilter:
+
+    userSearchBase: dc=example,dc=com
+
+    userSearchFilter:
 
     # Attribute name under which the members of a group object can be found.
     memberAttributeName: uniqueMember
@@ -31,12 +40,19 @@ config:
     # Name of the attribute which should be used as login in grafana.
     userLoginAttribute: uid
 
+    # Name of the attribute which should be used as Name in grafana.
+    userNameAttribute: cn
+
+    # Name of the attribute which should be used as mail in grafana.
+    userMailAttribute: mail
+
     # Login for the LDAP-Server.
-    login: cn=read-only-admin,dc=example,dc=com
+    login: test\cn=read-only-admin,dc=example,dc=com
 
     # Password for the LDAP-Server.
     password: password
 
   # Path to the .csv file in which the bindings are defined.
-  csvPath: example.csv
+  ldapBindingFile: example.csv
 
+  tryRun: False

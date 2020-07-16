@@ -25,9 +25,12 @@ def read_csv():
     Reads the csv-file defined in CSV_FILE and returns it as a 2-dimensional array.
     :return: The given csv file parsed into a 2-dimensional array.
     """
-    with open(configuration.CSV_FILE, newline='') as f:
-        reader = csv.reader(f)
-        data = list(reader)
+    try:
+        with open(configuration.LDAP_BINDING_FILE, newline='') as f:
+            reader = csv.reader(f)
+            data = list(reader)
+    except FileNotFoundError as e:
+        logger.error("Binding-file %s does not exist!", configuration.LDAP_BINDING_FILE)
     return data
 
 
@@ -234,7 +237,7 @@ def remove_unused_items(team_mappings):
     delete_unmapped_users(team_mappings)
 
 
-def export():
+def export(config_path):
     """
     Checks if a .lock file is currently present. If no .lock file is present, the updating of the grafana teams,
     folders and users is performed.
@@ -243,14 +246,17 @@ def export():
     global configuration
     if lock():
         logger.info("Starting task...")
-        configuration = config()
-        setup_grafana()
-        setup_ldap()
         try:
+            configuration = config(config_path)
+            if configuration.TRY_RUN:
+                print("tryRun enabled: Changes will not be applied!")
+            setup_grafana(configuration)
+            setup_ldap(configuration)
             mapping = read_mapping_from_csv()
             update_teams(mapping["teams"])
             update_folders(mapping["folders"])
             remove_unused_items(mapping["teams"])
+            logger.info("Task finished successfully!")
         except LDAPSocketOpenError:
             logger.error("Task aborted, unable to reach LDAP-Server.")
         except ConnectionError:
@@ -258,6 +264,5 @@ def export():
         except:
             logger.error("An unexpected error occured: %s", str(sys.exc_info()))
         unlock()
-        logger.info("Task finished successfully!")
     else:
-        logger.error("Could not perfom task. Lock is active.")
+        logger.error("Task aborted, process is already active!")

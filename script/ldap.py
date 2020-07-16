@@ -1,14 +1,22 @@
 from ldap3 import Server, Connection, ALL, SUBTREE, NTLM
 
 from .config import config
+from .helpers import *
+
 
 configuration = ""
 user_cache = {}
 
+connection = ""
 
-def setup_ldap():
-    global configuration
-    configuration = config()
+
+def setup_ldap(config_dict):
+    global configuration, connection
+    configuration = config_dict
+    if configuration.LDAP_IS_NTLM:
+        connection = get_ntlm_connection()
+    else:
+        connection = get_ldap_connection()
 
 
 def get_ldap_connection():
@@ -16,7 +24,8 @@ def get_ldap_connection():
     Creates a connection to the ldap-server provided in the config. Uses ldap3.
     :return: A ldap3 connection object.
     """
-    server = Server(configuration.LDAP_SERVER_URL, get_info=ALL)
+    server = Server(configuration.LDAP_SERVER_URL, get_info=ALL, use_ssl=configuration.LDAP_USE_SSL,
+                    port=configuration.LDAP_PORT)
     return Connection(server, configuration.LDAP_USER, configuration.LDAP_PASSWORD, auto_bind=True, read_only=True)
 
 
@@ -25,8 +34,9 @@ def get_ntlm_connection():
     Creates a connection to a server using NTLM authentication. Uses ldap3
     :return: A ldap3 connection object with authentication set to NTLM.
     """
-    server = Server(configuration.LDAP_SERVER_URL, get_info=ALL)
-    return Connection(server, user=configuration.LDAP_SERVER_URL + "\\" + configuration.LDAP_USER,
+    server = Server(configuration.LDAP_SERVER_URL, get_info=ALL, use_ssl=configuration.LDAP_USE_SSL,
+                    port=configuration.LDAP_PORT)
+    return Connection(server, user=configuration.LDAP_USER,
                       password=configuration.LDAP_PASSWORD, authentication=NTLM, read_only=True)
 
 
@@ -38,24 +48,40 @@ def fetch_users_of_group(group):
     :return: An array containing dictionaries each of which defines a user found in the provided group.
     """
     result = []
-    if configuration.LDAP_IS_NTLM:
-        connection = get_ntlm_connection()
-    else:
-        connection = get_ldap_connection()
     connection.bind()
+    if configuration.LDAP_GROUP_SEARCH_FILTER:
+        group_query_filter = "(&(cn=" + group + ")" + configuration.LDAP_GROUP_SEARCH_FILTER + ")"
+    else:
+        group_query_filter = "(cn=" + group + ")"
     groups = connection.extend.standard.paged_search(search_base=configuration.LDAP_GROUP_SEARCH_BASE,
-                                                     search_filter="(&(cn="
-                                                                   + group
-                                                                   + ")"
-                                                                   + configuration.LDAP_GROUP_SEARCH_FILTER
-                                                                   + ")",
+                                                     search_filter=group_query_filter,
                                                      search_scope=SUBTREE,
                                                      attributes=[configuration.LDAP_MEMBER_ATTRIBUTE],
                                                      paged_size=5,
                                                      generator=True)
     for group in groups:
         for user in group["attributes"][configuration.LDAP_MEMBER_ATTRIBUTE]:
-            result.append({"login": user.split(",")[0].replace(configuration.LDAP_USER_LOGIN_ATTRIBUTE + "=", "")})
+            if configuration.LDAP_USER_SEARCH_FILTER:
+                user_query_filter = configuration.LDAP_USER_SEARCH_FILTER
+            else:
+                user_query_filter = "(objectClass=*)"
+            user_data = connection.extend.standard.paged_search(search_base=user,
+                                                                search_scope=SUBTREE,
+                                                                search_filter=user_query_filter,
+                                                                attributes=[configuration.LDAP_USER_LOGIN_ATTRIBUTE,
+                                                                            configuration.LDAP_USER_NAME_ATTRIBUTE,
+                                                                            configuration.LDAP_USER_MAIL_ATTRIBUTE],
+                                                                paged_size=5)
+            for user_set in user_data:
+                data_set = user_set["attributes"]
+                mail = clean_attribute(data_set[configuration.LDAP_USER_MAIL_ATTRIBUTE])
+                if not mail:
+                    mail = clean_attribute(data_set[configuration.LDAP_USER_LOGIN_ATTRIBUTE])
+                result.append({
+                    "login": clean_attribute(data_set[configuration.LDAP_USER_LOGIN_ATTRIBUTE]),
+                    "name": clean_attribute(data_set[configuration.LDAP_USER_NAME_ATTRIBUTE]),
+                    "email": mail
+                })
     connection.unbind()
     return result
 

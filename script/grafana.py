@@ -7,9 +7,9 @@ grafana_api = ""
 configuration = ""
 
 
-def setup_grafana():
+def setup_grafana(config_dict):
     global grafana_api, configuration
-    configuration = config()
+    configuration = config_dict
     grafana_api = GrafanaFace(
         auth=configuration.GRAFANA_AUTH,
         host=configuration.GRAFANA_URL
@@ -25,7 +25,10 @@ def delete_team_by_name(name):
     team_data = grafana_api.teams.get_team_by_name(name)
     if len(team_data) > 0:
         for data_set in team_data:
-            grafana_api.teams.delete_team(data_set["id"])
+            if configuration.TRY_RUN:
+                print("Would have deleted team with name: %s and id: %s" % (name, data_set["id"]))
+            else:
+                grafana_api.teams.delete_team(data_set["id"])
         return True
     return False
 
@@ -37,10 +40,13 @@ def create_team(name, mail):
     :param mail: The mail of the team.
     :return: The API response.
     """
-    return grafana_api.teams.add_team({
-        "name": name,
-        "mail": mail
-    })
+    if configuration.TRY_RUN:
+        print("Would have created team with name: %s" % name)
+    else:
+        return grafana_api.teams.add_team({
+            "name": name,
+            "mail": mail
+        })
 
 
 def create_user_with_random_pw(user):
@@ -48,11 +54,12 @@ def create_user_with_random_pw(user):
     Creates a user from a dictionary resembling a user. Generates a random alphanumerical String as password.
     :param user: The dictionary off of which the user should be created.
     """
-    grafana_api.admin.create_user({
-        "login": user["login"],
-        "password": get_random_alphanumerical(),
-        "OrgId": 1
-    })
+    user["password"] = get_random_alphanumerical()
+    user["OrgId"] = 1
+    if configuration.TRY_RUN:
+        print("Would have created user with json %s" % str(user))
+    else:
+        grafana_api.admin.create_user(user)
 
 
 def delete_user_by_login(login):
@@ -62,7 +69,10 @@ def delete_user_by_login(login):
     :return: The response of the api.
     """
     if not login == "admin":
-        return grafana_api.admin.delete_user(grafana_api.users.find_user(login)["id"])
+        if configuration.TRY_RUN:
+            print("Would have deleted user with name: %s" % login)
+        else:
+            return grafana_api.admin.delete_user(grafana_api.users.find_user(login)["id"])
     return False
 
 
@@ -75,7 +85,10 @@ def create_folder(folder_name, folder_uuid):
     :return: The api-response if the folder was create successfully. If an error occurs, false is returned.
     """
     try:
-        return grafana_api.folder.create_folder(folder_name, folder_uuid)
+        if configuration.TRY_RUN:
+            print("Would have created folder with name: %s and id: %s" % (folder_name, folder_uuid))
+        else:
+            return grafana_api.folder.create_folder(folder_name, folder_uuid)
     except GrafanaClientError:
         return False
 
@@ -87,7 +100,10 @@ def add_user_to_team(login, team):
     :param team: The team the user should be added to.
     """
     try:
-        grafana_api.teams.add_team_member(get_id_of_team(team), get_id_by_login(login))
+        if configuration.TRY_RUN:
+            print("Would have added user %s to team %s" % (login, team))
+        else:
+            grafana_api.teams.add_team_member(get_id_of_team(team), get_id_by_login(login))
     except GrafanaBadInputError:
         return False
 
@@ -99,16 +115,25 @@ def get_members_of_team(team):
     :param team: The name of the team the members should be returned of.
     :return: An array containing all users as described above.
     """
+    teams = grafana_api.teams.get_team_by_name(team)
+    if not teams:
+        return []
+
     result = []
-    users = grafana_api.teams.get_team_members(grafana_api.teams.get_team_by_name(team)[0]["id"])
+    users = grafana_api.teams.get_team_members(teams[0]["id"])
     if users is not None:
         for user in users:
-            result.append({"login": user["login"]})
+            result.append({"login": user["login"],
+                           "name": user["name"],
+                           "email": user["email"]})
     return result
 
 
 def remove_member_from_team(grafana_team, user_login):
-    grafana_api.teams.remove_team_member(get_id_of_team(grafana_team), get_id_by_login(user_login))
+    if configuration.TRY_RUN:
+        print("Would have removed user %s from team %s" % (grafana_team, user_login))
+    else:
+        grafana_api.teams.remove_team_member(get_id_of_team(grafana_team), get_id_by_login(user_login))
 
 
 def login_taken(login):
@@ -162,7 +187,10 @@ def update_folder_permissions(folder_id, permissions):
     """
     Sets the given permissions for the folder found under the given id
     """
-    grafana_api.folder.update_folder_permissions(folder_id, {"items": permissions})
+    if configuration.TRY_RUN:
+        print("Would have set permission of folder %s to %s" % (folder_id, permissions))
+    else:
+        grafana_api.folder.update_folder_permissions(folder_id, {"items": permissions})
 
 
 def get_all_teams():
@@ -180,5 +208,7 @@ def get_all_users():
     users = grafana_api.users.search_users()
     if users is not None:
         for user in users:
-            user_logins.append({"login": user["login"]})
+            user_logins.append({"login": user["login"],
+                                "name": user["name"],
+                                "email": user["email"]})
     return user_logins

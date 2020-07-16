@@ -30,6 +30,12 @@ def unlock():
     os.remove("./.lock")
 
 
+def clean_attribute(attribute):
+    if not attribute:
+        return ""
+    return attribute[0]
+
+
 def get_user_attr(user, attribute):
     """
     Takes a user and an attribute. Retrieves the value found with the given attribute and strips it off of unwanted
