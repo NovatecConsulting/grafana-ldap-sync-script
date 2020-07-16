@@ -22,6 +22,7 @@ config:
     # URL of the source LDAP-Server.
     url: ldap.forumsys.com
 
+    # Port of the ldap instance provided in the url-variable.
     port: 389
 
     # Group search-base of the source LDAP-Server.
@@ -30,8 +31,10 @@ config:
     # Filter that should be used for the group search.
     groupSearchFilter:
 
+    # Search-Base for user objects on the LDAP-Server.
     userSearchBase: dc=example,dc=com
 
+    # Filter that should be used for user searches.
     userSearchFilter:
 
     # Attribute name under which the members of a group object can be found.
@@ -51,5 +54,3 @@ config:
 
     # Password for the LDAP-Server.
     password: password
-
-  tryRun: False
