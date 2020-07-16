@@ -264,7 +264,6 @@ def export(config_path, bind, dry_run):
             logger.error("Task aborted, unable to reach Grafana-Server.")
         except:
             logger.error("An unexpected error occured: %s", str(sys.exc_info()))
-            sys.exc_info().with_traceback()
         unlock()
     else:
         logger.error("Task aborted, process is already active!")
