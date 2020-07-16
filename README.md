@@ -10,7 +10,7 @@ pip install -r requirements.txt
 ## Running the Script
 The script can be simply run with:
 ```bash
-python run.py
+python run.py [-h] --config *path-to-config.yml* --bind *path-to-bind-csv* [--dry-run]
 ```
 
 ## Usage

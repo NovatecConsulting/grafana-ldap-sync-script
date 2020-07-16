@@ -8,7 +8,7 @@ def get_random_alphanumerical():
     Creates a random alphanumerical string with a length of 16 characters.
     :return: A random alphanumerical string with a length of 16 characters.
     """
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+    return ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(16))
 
 
 def lock():
