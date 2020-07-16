@@ -54,12 +54,13 @@ def create_user_with_random_pw(user):
     Creates a user from a dictionary resembling a user. Generates a random alphanumerical String as password.
     :param user: The dictionary off of which the user should be created.
     """
-    user["password"] = get_random_alphanumerical()
-    user["OrgId"] = 1
+    user_dict = dict(user)
+    user_dict["password"] = get_random_alphanumerical()
+    user_dict["OrgId"] = 1
     if configuration.DRY_RUN:
-        print("Would have created user with json %s" % str(user))
+        print("Would have created user with json %s" % str(user_dict))
     else:
-        grafana_api.admin.create_user(user)
+        grafana_api.admin.create_user(user_dict)
 
 
 def delete_user_by_login(login):
