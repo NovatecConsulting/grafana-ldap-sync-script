@@ -25,7 +25,7 @@ def delete_team_by_name(name):
     team_data = grafana_api.teams.get_team_by_name(name)
     if len(team_data) > 0:
         for data_set in team_data:
-            if configuration.TRY_RUN:
+            if configuration.DRY_RUN:
                 print("Would have deleted team with name: %s and id: %s" % (name, data_set["id"]))
             else:
                 grafana_api.teams.delete_team(data_set["id"])
@@ -40,7 +40,7 @@ def create_team(name, mail):
     :param mail: The mail of the team.
     :return: The API response.
     """
-    if configuration.TRY_RUN:
+    if configuration.DRY_RUN:
         print("Would have created team with name: %s" % name)
     else:
         return grafana_api.teams.add_team({
@@ -56,7 +56,7 @@ def create_user_with_random_pw(user):
     """
     user["password"] = get_random_alphanumerical()
     user["OrgId"] = 1
-    if configuration.TRY_RUN:
+    if configuration.DRY_RUN:
         print("Would have created user with json %s" % str(user))
     else:
         grafana_api.admin.create_user(user)
@@ -69,7 +69,7 @@ def delete_user_by_login(login):
     :return: The response of the api.
     """
     if not login == "admin":
-        if configuration.TRY_RUN:
+        if configuration.DRY_RUN:
             print("Would have deleted user with name: %s" % login)
         else:
             return grafana_api.admin.delete_user(grafana_api.users.find_user(login)["id"])
@@ -85,7 +85,7 @@ def create_folder(folder_name, folder_uuid):
     :return: The api-response if the folder was create successfully. If an error occurs, false is returned.
     """
     try:
-        if configuration.TRY_RUN:
+        if configuration.DRY_RUN:
             print("Would have created folder with name: %s and id: %s" % (folder_name, folder_uuid))
         else:
             return grafana_api.folder.create_folder(folder_name, folder_uuid)
@@ -100,7 +100,7 @@ def add_user_to_team(login, team):
     :param team: The team the user should be added to.
     """
     try:
-        if configuration.TRY_RUN:
+        if configuration.DRY_RUN:
             print("Would have added user %s to team %s" % (login, team))
         else:
             grafana_api.teams.add_team_member(get_id_of_team(team), get_id_by_login(login))
@@ -130,7 +130,7 @@ def get_members_of_team(team):
 
 
 def remove_member_from_team(grafana_team, user_login):
-    if configuration.TRY_RUN:
+    if configuration.DRY_RUN:
         print("Would have removed user %s from team %s" % (grafana_team, user_login))
     else:
         grafana_api.teams.remove_team_member(get_id_of_team(grafana_team), get_id_by_login(user_login))
@@ -187,7 +187,7 @@ def update_folder_permissions(folder_id, permissions):
     """
     Sets the given permissions for the folder found under the given id
     """
-    if configuration.TRY_RUN:
+    if configuration.DRY_RUN:
         print("Would have set permission of folder %s to %s" % (folder_id, permissions))
     else:
         grafana_api.folder.update_folder_permissions(folder_id, {"items": permissions})

@@ -24,14 +24,13 @@ class config:
     LDAP_GROUP_SEARCH_FILTER = ""
     LDAP_MEMBER_ATTRIBUTE = ""
     LDAP_IS_NTLM = False
-    LDAP_BINDING_FILE = ""
     LDAP_USE_SSL = False
     LDAP_USER_LOGIN_ATTRIBUTE = ""
     LDAP_USER_NAME_ATTRIBUTE = ""
     LDAP_USER_MAIL_ATTRIBUTE = ""
     LDAP_USER_SEARCH_BASE = ""
     LDAP_USER_SEARCH_FILTER = ""
-    TRY_RUN = False
+    DRY_RUN = False
 
     def load_config(self, config_path):
         """
@@ -63,6 +62,3 @@ class config:
         self.LDAP_USER_MAIL_ATTRIBUTE = config["ldap"]["userMailAttribute"]
         self.LDAP_USER_SEARCH_BASE = config["ldap"]["userSearchBase"]
         self.LDAP_USER_SEARCH_FILTER = config["ldap"]["userSearchFilter"]
-        self.LDAP_BINDING_FILE = config["ldapBindingFile"]
-        if "tryRun" in config:
-            self.TRY_RUN = config["tryRun"]

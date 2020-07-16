@@ -20,13 +20,13 @@ PERMISSION_MAP = {
 configuration = ""
 
 
-def read_csv():
+def read_csv(file):
     """
     Reads the csv-file defined in CSV_FILE and returns it as a 2-dimensional array.
     :return: The given csv file parsed into a 2-dimensional array.
     """
     try:
-        with open(configuration.LDAP_BINDING_FILE, newline='') as f:
+        with open(file, newline='') as f:
             reader = csv.reader(f)
             data = list(reader)
     except FileNotFoundError as e:
@@ -34,7 +34,7 @@ def read_csv():
     return data
 
 
-def read_mapping_from_csv():
+def read_mapping_from_csv(bind):
     """
     Calls read_csv() and parses the loaded array into a dictionary. The dictionary is defined as follows:
     {
@@ -61,7 +61,7 @@ def read_mapping_from_csv():
     :return: The csv's contents parsed into a dictionary as described above.
     """
     result = {"teams": {}, "folders": {}}
-    csv_content = read_csv()
+    csv_content = read_csv(bind)
     is_header = True
     for line in csv_content:
         if not is_header:
@@ -237,7 +237,7 @@ def remove_unused_items(team_mappings):
     delete_unmapped_users(team_mappings)
 
 
-def export(config_path):
+def export(config_path, bind, dry_run):
     """
     Checks if a .lock file is currently present. If no .lock file is present, the updating of the grafana teams,
     folders and users is performed.
@@ -248,11 +248,12 @@ def export(config_path):
         logger.info("Starting task...")
         try:
             configuration = config(config_path)
-            if configuration.TRY_RUN:
+            configuration.DRY_RUN = dry_run
+            if configuration.DRY_RUN:
                 print("tryRun enabled: Changes will not be applied!")
             setup_grafana(configuration)
             setup_ldap(configuration)
-            mapping = read_mapping_from_csv()
+            mapping = read_mapping_from_csv(bind)
             update_teams(mapping["teams"])
             update_folders(mapping["folders"])
             remove_unused_items(mapping["teams"])
@@ -263,6 +264,7 @@ def export(config_path):
             logger.error("Task aborted, unable to reach Grafana-Server.")
         except:
             logger.error("An unexpected error occured: %s", str(sys.exc_info()))
+            sys.exc_info().with_traceback()
         unlock()
     else:
         logger.error("Task aborted, process is already active!")

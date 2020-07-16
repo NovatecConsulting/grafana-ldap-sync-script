@@ -8,7 +8,9 @@ from script import grafana
 
 class delete_team_by_name(TestCase):
     @patch("script.grafana.grafana_api")
-    def test_deletes_team(self, mock_grafana_api):
+    @patch("script.grafana.configuration")
+    def test_deletes_team(self, mock_config, mock_grafana_api):
+        mock_config.DRY_RUN = False
         mock_grafana_api.teams = Mock()
         mock_grafana_api.teams.get_team_by_name.return_value = [{"id": "my_team_id"}]
 
@@ -31,7 +33,9 @@ class delete_team_by_name(TestCase):
 
 class delete_user_by_login(TestCase):
     @patch("script.grafana.grafana_api")
-    def test_does_not_delete_admin(self, mock_grafana_api):
+    @patch("script.grafana.configuration")
+    def test_does_not_delete_admin(self, mock_config, mock_grafana_api):
+        mock_config.DRY_RUN = False
         mock_grafana_api.admin = Mock()
         mock_grafana_api.admin.delete_user.return_value = True
 
@@ -40,7 +44,9 @@ class delete_user_by_login(TestCase):
         self.assertFalse(output)
 
     @patch("script.grafana.grafana_api")
-    def test_deletes_user(self, mock_grafana_api):
+    @patch("script.grafana.configuration")
+    def test_deletes_user(self, mock_config, mock_grafana_api):
+        mock_config.DRY_RUN = False
         mock_grafana_api.admin = Mock()
         mock_grafana_api.admin.delete_user.return_value = True
         mock_grafana_api.users.find_user = Mock()
@@ -57,7 +63,9 @@ class delete_user_by_login(TestCase):
 
 class create_folder(TestCase):
     @patch("script.grafana.grafana_api")
-    def test_creates_folder(self, mock_grafana_api):
+    @patch("script.grafana.configuration")
+    def test_creates_folder(self, mock_config, mock_grafana_api):
+        mock_config.DRY_RUN = False
         mock_grafana_api.folder.create_folder = Mock()
         mock_grafana_api.folder.create_folder.return_value = True
 
@@ -68,7 +76,9 @@ class create_folder(TestCase):
         mock_grafana_api.folder.create_folder.assert_called_with("foo", "bar")
 
     @patch("script.grafana.grafana_api")
-    def test_catches_exception(self, mock_grafana_api):
+    @patch("script.grafana.configuration")
+    def test_catches_exception(self, mock_config, mock_grafana_api):
+        mock_config.DRY_RUN = False
         mock_grafana_api.folder.create_folder = Mock()
         mock_grafana_api.folder.create_folder.side_effect = GrafanaClientError("something", "went", "wrong")
 
@@ -84,12 +94,15 @@ class get_members_of_team(TestCase):
     def test_returns_members_correctly(self, mock_grafana_api):
         mock_grafana_api.teams.get_team_members = Mock()
         mock_grafana_api.teams.get_team_members.return_value = [{"login": "user_login",
-                                                                 }
+                                                                 "name": "name",
+                                                                 "email": "mail"}
                                                                 ]
 
         output = grafana.get_members_of_team("my_team")
 
-        self.assertEqual(output, [{"login": "user_login"}])
+        self.assertEqual(output, [{"login": "user_login",
+                                   "name": "name",
+                                   "email": "mail"}])
 
 
 class login_taken(TestCase):
@@ -154,7 +167,9 @@ class get_id_of_team(TestCase):
 
 class update_folder_permissions(TestCase):
     @patch("script.grafana.grafana_api")
-    def test_update_input(self, mock_grafana_api):
+    @patch("script.grafana.configuration")
+    def test_update_input(self, mock_config, mock_grafana_api):
+        mock_config.DRY_RUN = False
         mock_grafana_api.folder.update_folder_permissions = Mock()
         mock_grafana_api.folder.update_folder_permissions.return_value = []
 

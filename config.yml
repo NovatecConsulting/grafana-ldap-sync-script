@@ -52,7 +52,4 @@ config:
     # Password for the LDAP-Server.
     password: password
 
-  # Path to the .csv file in which the bindings are defined.
-  ldapBindingFile: example.csv
-
   tryRun: False
