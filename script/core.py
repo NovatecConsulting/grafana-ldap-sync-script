@@ -250,7 +250,7 @@ def export(config_path, bind, dry_run):
             configuration = config(config_path)
             configuration.DRY_RUN = dry_run
             if configuration.DRY_RUN:
-                print("tryRun enabled: Changes will not be applied!")
+                print("dryRun enabled: Changes will not be applied!")
             setup_grafana(configuration)
             setup_ldap(configuration)
             mapping = read_mapping_from_csv(bind)

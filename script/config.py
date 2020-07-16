@@ -39,7 +39,7 @@ class config:
         try:
             config = yaml.safe_load(open(config_path))["config"]
         except FileNotFoundError as e:
-            logger.error("Config-file %s does nor exist!", config_path)
+            logger.error("Config-file %s does not exist!", config_path)
             raise e
         self.GRAFANA_AUTH = (
             config["grafana"]["user"],
