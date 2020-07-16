@@ -143,9 +143,9 @@ def get_members_of_team(team):
 
 def remove_member_from_team(grafana_team, user_login):
     if configuration.DRY_RUN:
-        print("Would have removed user %s from team %s" % (grafana_team, user_login))
+        print("Would have removed user %s from team %s" % (user_login, grafana_team))
     else:
-        logger.info("Removing user %s from team %s" % (grafana_team, user_login))
+        logger.info("Removing user %s from team %s" % (user_login, grafana_team))
         grafana_api.teams.remove_team_member(get_id_of_team(grafana_team), get_id_by_login(user_login))
 
 
