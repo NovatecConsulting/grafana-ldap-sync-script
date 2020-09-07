@@ -4,8 +4,7 @@ import logging
 from .config import config
 from .helpers import *
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("grafana-ldap-sync-script")
+logger = logging.getLogger()
 
 configuration = ""
 user_cache = {}

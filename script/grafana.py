@@ -2,12 +2,13 @@ from grafana_api.grafana_api import GrafanaClientError, GrafanaBadInputError
 from grafana_api.grafana_face import GrafanaFace
 from .config import *
 from .helpers import *
+import logging
 
 grafana_api = ""
 configuration = ""
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("grafana-ldap-sync-script")
+logger = logging.getLogger()
+logger_mut = logging.getLogger("mutate")
 
 def setup_grafana(config_dict):
     global grafana_api, configuration
@@ -27,10 +28,8 @@ def delete_team_by_name(name):
     team_data = grafana_api.teams.get_team_by_name(name)
     if len(team_data) > 0:
         for data_set in team_data:
-            if configuration.DRY_RUN:
-                logger.info("Would have deleted team with name: %s and id: %s" % (name, data_set["id"]))
-            else:
-                logger.info("Deleting team with name %s and id %s" % (name, data_set["id"]))
+            logger_mut.info("Deleting team with name %s and id %s" % (name, data_set["id"]))
+            if not configuration.DRY_RUN:
                 grafana_api.teams.delete_team(data_set["id"])
         return True
     return False
@@ -43,10 +42,8 @@ def create_team(name, mail):
     :param mail: The mail of the team.
     :return: The API response.
     """
-    if configuration.DRY_RUN:
-        logger.info("Would have created team with name: %s" % name)
-    else:
-        logger.info("Creating team with name %s" % name)
+    logger_mut.info("Creating team with name %s" % name)
+    if not configuration.DRY_RUN:
         return grafana_api.teams.add_team({
             "name": name,
             "mail": mail
@@ -61,12 +58,10 @@ def create_user_with_random_pw(user):
     user_dict = dict(user)
     user_dict["password"] = get_random_alphanumerical()
     user_dict["OrgId"] = 1
-    if configuration.DRY_RUN:
-        logger.info("Would have created user with json %s" % str(user_dict))
-    else:
-        logger.info("Creating user with login %s, name %s and mail %s" %
-                    (user_dict["login"], user_dict["name"], user_dict["email"])
-                    )
+
+    logger_mut.info("Creating user with login %s, name %s and mail %s" % (user_dict["login"], user_dict["name"], user_dict["email"]))
+
+    if not configuration.DRY_RUN:
         grafana_api.admin.create_user(user_dict)
 
 
@@ -76,11 +71,11 @@ def delete_user_by_login(login):
     :param login: The login of the user to be deleted.
     :return: The response of the api.
     """
-    if not login == "admin":
-        if configuration.DRY_RUN:
-            logger.info("Would have deleted user with name: %s" % login)
-        else:
-            logger.info("Deleting user with name %s" % login)
+    if login == configuration.GRAFANA_AUTH[0]:
+        logger.info("The user '%s' is used by this script for accessing Grafana thus will not be deleted." % login)
+    else:
+        logger_mut.info("Deleting user with name %s" % login)
+        if not configuration.DRY_RUN:
             return grafana_api.admin.delete_user(grafana_api.users.find_user(login)["id"])
     return False
 
@@ -94,10 +89,8 @@ def create_folder(folder_name, folder_uuid):
     :return: The api-response if the folder was create successfully. If an error occurs, false is returned.
     """
     try:
-        if configuration.DRY_RUN:
-            logger.info("Would have created folder with name: %s and id: %s" % (folder_name, folder_uuid))
-        else:
-            logger.info("Creating folder with name %s and id %s" % (folder_name, folder_uuid))
+        logger_mut.info("Creating folder with name %s and id %s" % (folder_name, folder_uuid))
+        if not configuration.DRY_RUN:
             return grafana_api.folder.create_folder(folder_name, folder_uuid)
     except GrafanaClientError:
         return False
@@ -110,10 +103,8 @@ def add_user_to_team(login, team):
     :param team: The team the user should be added to.
     """
     try:
-        if configuration.DRY_RUN:
-            logger.info("Would have added user %s to team %s" % (login, team))
-        else:
-            logger.info("Adding user %s to team %s" % (login, team))
+        logger_mut.info("Adding user %s to team %s" % (login, team))
+        if not configuration.DRY_RUN:
             grafana_api.teams.add_team_member(get_id_of_team(team), get_id_by_login(login))
     except GrafanaBadInputError:
         return False
@@ -142,10 +133,8 @@ def get_members_of_team(team):
 
 
 def remove_member_from_team(grafana_team, user_login):
-    if configuration.DRY_RUN:
-        print("Would have removed user %s from team %s" % (user_login, grafana_team))
-    else:
-        logger.info("Removing user %s from team %s" % (user_login, grafana_team))
+    logger_mut.info("Removing user %s from team %s" % (user_login, grafana_team))
+    if not configuration.DRY_RUN:
         grafana_api.teams.remove_team_member(get_id_of_team(grafana_team), get_id_by_login(user_login))
 
 
@@ -200,10 +189,8 @@ def update_folder_permissions(folder_id, permissions):
     """
     Sets the given permissions for the folder found under the given id
     """
-    if configuration.DRY_RUN:
-        logger.info("Would have set permission of folder %s to %s" % (folder_id, permissions))
-    else:
-        logger.info("Setting permission of folder %s to %s" % (folder_id, permissions))
+    logger_mut.info("Setting permission of folder %s to %s" % (folder_id, permissions))
+    if not configuration.DRY_RUN:
         grafana_api.folder.update_folder_permissions(folder_id, {"items": permissions})
 
 

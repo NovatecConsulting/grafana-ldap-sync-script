@@ -1,5 +1,42 @@
-from script.core import export
+from script.core import startUserSync
 import argparse
+import logging
+
+class DispatchingFormatter:
+    def __init__(self, formatters, default_formatter):
+        self._formatters = formatters
+        self._default_formatter = default_formatter
+
+    def format(self, record):
+        formatter = self._formatters.get(record.name, self._default_formatter)
+        return formatter.format(record)
+
+def setup_logger():
+    """
+    Setting up the used logger. The 'mutate' logger will print whether dry-run is used and changes are being applied.
+    """
+    log_format = '%(asctime)s - %(levelname)s - %(module)7s - %(message)s'
+    log_format_mut = log_format
+
+    if args.dry_run:
+        log_format_mut = '%(asctime)s - %(levelname)s - %(module)7s - [SKIPPED] %(message)s'
+    else:
+        log_format_mut = log_format
+
+    
+    logger = logging.getLogger()
+    while logger.handlers:
+            logger.handlers.pop()
+
+    formatter = DispatchingFormatter({
+            'mutate': logging.Formatter(log_format_mut),
+        },
+        logging.Formatter(log_format)
+    )
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
+    logger.setLevel(logging.INFO)
+    logger.addHandler(handler)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process config path')
@@ -10,4 +47,9 @@ if __name__ == "__main__":
                                                                          'changes are printed to the console.',
                         action='store_true')
     args = parser.parse_args()
-    export(args.config_path, args.bind, args.dry_run)
+
+    # setup the logger
+    setup_logger()
+
+    # starts the sync process
+    startUserSync(args.config_path, args.bind, args.dry_run)

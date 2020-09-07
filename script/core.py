@@ -8,8 +8,7 @@ from ldap3.core.exceptions import LDAPSocketOpenError
 from requests.exceptions import ConnectionError
 from .config import *
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("grafana-ldap-sync-script")
+logger = logging.getLogger()
 
 PERMISSION_MAP = {
     "View": 1,
@@ -237,7 +236,7 @@ def remove_unused_items(team_mappings):
     delete_unmapped_users(team_mappings)
 
 
-def export(config_path, bind, dry_run):
+def startUserSync(config_path, bind, dry_run):
     """
     Checks if a .lock file is currently present. If no .lock file is present, the updating of the grafana teams,
     folders and users is performed.
@@ -245,18 +244,31 @@ def export(config_path, bind, dry_run):
     """
     global configuration
     if lock():
-        logger.info("Starting task...")
         try:
+            logger.info("=================================================")
+            logger.info("Starting user synchronization...")
+
             configuration = config(config_path)
+            
             configuration.DRY_RUN = dry_run
             if configuration.DRY_RUN:
-                print("dryRun enabled: Changes will not be applied!")
+                logger.info("!! DryRun enabled: Changes will not be applied !!")
+            
+            logger.info("=================================================")
+
+            logger.info("Setting up the connection to the Grafana server..")
             setup_grafana(configuration)
+            logger.info("Setting up the connection to the LDAP server..")
             setup_ldap(configuration)
+            logger.info("Reading the user and team mappings..")
             mapping = read_mapping_from_csv(bind)
+            logger.info("Updating the Grafana teams..")
             update_teams(mapping["teams"])
+            logger.info("Updating the Grafana folders..")
             update_folders(mapping["folders"])
+            logger.info("Removing unused teams and users..")
             remove_unused_items(mapping["teams"])
+
             logger.info("Task finished successfully!")
         except LDAPSocketOpenError:
             logger.error("Task aborted, unable to reach LDAP-Server.")

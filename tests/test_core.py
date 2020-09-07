@@ -379,7 +379,7 @@ class export(TestCase):
         mock_config.return_value = True
         mock_lock.return_value = True
 
-        core.export("")
+        core.startUserSync("")
 
         self.assertEqual(mock_lock.call_count, 1)
         self.assertEqual(mock_unlock.call_count, 1)
@@ -405,7 +405,7 @@ class export(TestCase):
         mock_config.return_value = True
         mock_lock.return_value = True
 
-        core.export("")
+        core.startUserSync("")
 
         self.assertEqual(mock_lock.call_count, 1)
         self.assertEqual(mock_unlock.call_count, 1)
@@ -432,7 +432,7 @@ class export(TestCase):
         mock_config.return_value = True
         mock_lock.return_value = True
 
-        core.export("")
+        core.startUserSync("")
 
         self.assertEqual(mock_lock.call_count, 1)
         self.assertEqual(mock_unlock.call_count, 1)
@@ -457,7 +457,7 @@ class export(TestCase):
         mock_config.return_value = True
         mock_lock.return_value = False
 
-        core.export("")
+        core.startUserSync("")
 
         self.assertEqual(mock_lock.call_count, 1)
         self.assertFalse(mock_remove_unused_items.called)

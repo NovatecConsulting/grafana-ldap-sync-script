@@ -132,3 +132,5 @@ dmypy.json
 # Project-specific
 .lock
 .idea
+/shelf/
+/workspace.xml
