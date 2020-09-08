@@ -1,0 +1,2 @@
+mock~=4.0.2
+setuptools~=49.2.0

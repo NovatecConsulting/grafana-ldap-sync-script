@@ -15,11 +15,11 @@ def setup_logger():
     """
     Setting up the used logger. The 'mutate' logger will print whether dry-run is used and changes are being applied.
     """
-    log_format = '%(asctime)s - %(levelname)s - %(module)7s - %(message)s'
+    log_format = '%(asctime)s - %(levelname)5s - %(module)7s - %(message)s'
     log_format_mut = log_format
 
     if args.dry_run:
-        log_format_mut = '%(asctime)s - %(levelname)s - %(module)7s - [SKIPPED] %(message)s'
+        log_format_mut = '%(asctime)s - %(levelname)5s - %(module)7s - [SKIPPED] %(message)s'
     else:
         log_format_mut = log_format
 
