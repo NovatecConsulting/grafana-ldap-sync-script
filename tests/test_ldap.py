@@ -1,5 +1,5 @@
 from unittest import TestCase
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, ANY
 
 from ldap3 import ALL, NTLM
 
@@ -23,7 +23,7 @@ class get_ldap_connection(TestCase):
         self.assertEqual(output, True)
         self.assertEqual(mock_server.call_count, 1)
         self.assertEqual(mock_connection.call_count, 1)
-        mock_server.assert_called_with("my_url", get_info=ALL)
+        mock_server.assert_called_with("my_url", get_info=ALL, use_ssl=ANY, port=ANY)
         mock_connection.assert_called_with(mock_server_object, "my_user", "my_password", auto_bind=True, read_only=True)
 
 

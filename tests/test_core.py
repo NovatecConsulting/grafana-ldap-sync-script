@@ -17,7 +17,7 @@ class read_mapping_from_csv(TestCase):
                                        "header6"]
                                       ]
 
-        mapping = core.read_mapping_from_csv()
+        mapping = core.read_mapping_from_csv(bind='')
 
         self.assertTrue("teams" in mapping)
         self.assertTrue("folders" in mapping)
