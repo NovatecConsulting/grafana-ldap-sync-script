@@ -44,8 +44,8 @@ class get_ntml_connection(TestCase):
         self.assertEqual(output, True)
         self.assertEqual(mock_server.call_count, 1)
         self.assertEqual(mock_connection.call_count, 1)
-        mock_server.assert_called_with("my_url", get_info=ALL)
-        mock_connection.assert_called_with(mock_server_object, user="my_url\\my_user", password="my_password",
+        mock_server.assert_called_with("my_url", get_info=ALL, use_ssl=ANY, port=ANY)
+        mock_connection.assert_called_with(mock_server_object, user="my_user", password="my_password",
                                            authentication=NTLM, read_only=True)
 
 

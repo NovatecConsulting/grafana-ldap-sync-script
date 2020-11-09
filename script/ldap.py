@@ -80,12 +80,16 @@ def fetch_users_of_group(group_name):
                                                                 paged_size=5)
             for user_set in user_data:
                 data_set = user_set["attributes"]
+                login = clean_attribute(data_set[configuration.LDAP_USER_LOGIN_ATTRIBUTE])
+                name = clean_attribute(data_set[configuration.LDAP_USER_NAME_ATTRIBUTE])
                 mail = clean_attribute(data_set[configuration.LDAP_USER_MAIL_ATTRIBUTE])
+                if not login or not name:
+                    continue
                 if not mail:
                     mail = clean_attribute(data_set[configuration.LDAP_USER_LOGIN_ATTRIBUTE])
                 result.append({
-                    "login": clean_attribute(data_set[configuration.LDAP_USER_LOGIN_ATTRIBUTE]),
-                    "name": clean_attribute(data_set[configuration.LDAP_USER_NAME_ATTRIBUTE]),
+                    "login": login,
+                    "name": name,
                     "email": mail
                 })
     connection.unbind()
