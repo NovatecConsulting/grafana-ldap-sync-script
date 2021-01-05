@@ -3,6 +3,8 @@ config:
 
     # URL of the target grafana-server.
     url: localhost:3000
+    # Protocol to use when connecting to grafana (http, https)
+    protocol: http
     # User account name with admin rights on target grafana-server.
     user: admin
     # Password of account with admin rights on target grafana-server.
