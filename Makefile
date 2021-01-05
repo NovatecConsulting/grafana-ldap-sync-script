@@ -26,3 +26,9 @@ docker-build:
 docker-push: docker-build
 	docker push ${DOCKER_REPO}:latest
 	docker push ${DOCKER_REPO}:${DOCKER_TAG}
+
+docker-run: docker-build
+	docker run --mount 'type=bind,source=${PWD},target=/data' ${DOCKER_REPO}:${DOCKER_TAG} --config /data/config.yml --bind /data/example.csv
+
+docker-explore: docker-build
+	docker run -it --entrypoint /bin/bash --mount 'type=bind,source=${PWD},target=/data' ${DOCKER_REPO}:${DOCKER_TAG} -o vi

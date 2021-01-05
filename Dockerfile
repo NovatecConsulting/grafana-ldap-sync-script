@@ -2,8 +2,11 @@ FROM python:3.9-slim
 
 COPY requirements.txt /requirements.txt
 
-RUN pip install -r /requirements.txt
+RUN pip install -r /requirements.txt && mkdir /app
 
-ADD LICENSE run.py script/* /
+WORKDIR /app
 
-ENTRYPOINT [ "python3", "/run.py" ]
+COPY LICENSE run.py /app/
+COPY script /app/script
+
+ENTRYPOINT [ "python3", "./run.py" ]

@@ -14,6 +14,7 @@ class config:
 
     GRAFANA_AUTH = ""
     GRAFANA_URL = ""
+    GRAFANA_PROTOCOL = "http"
 
     LDAP_SERVER_URL = ""
     LDAP_PORT = ""
@@ -46,6 +47,8 @@ class config:
             config["grafana"]["password"]
         )
         self.GRAFANA_URL = config["grafana"]["url"]
+        if config["grafana"]["protocol"]:
+            self.GRAFANA_PROTOCOL = config["grafana"]["protocol"]
 
         self.LDAP_SERVER_URL = config["ldap"]["url"]
         self.LDAP_PORT = config["ldap"]["port"]
