@@ -1,4 +1,4 @@
-DOCKER_REPO ?= bushelpowered/grafana-ldap-sync-script
+DOCKER_REPO ?= DOCKERHUB_USER/grafana-ldap-sync-script
 DOCKER_TAG ?= v1.0
 
 init:
