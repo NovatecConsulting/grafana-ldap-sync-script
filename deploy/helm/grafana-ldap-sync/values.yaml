@@ -67,6 +67,8 @@ extraContainers: []
 extraContainerConfig: {}
 # Add additional fully-baked manifests to the chart
 extraManifests: []
+# Add more args to the command that's run
+extraArgs: []
 
 # Restart Policy can either be Never or OnFailure
 restartPolicy: Never

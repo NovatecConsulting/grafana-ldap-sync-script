@@ -51,12 +51,16 @@ spec:
               image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
               imagePullPolicy: {{ .Values.image.pullPolicy }}
               args:
-              - --config-file=/config/config.yaml
+              - --config=/config/config.yaml
               - --bind=/config/permissions.csv
               - --log-level={{ .Values.logLevel }}
               {{- if .Values.dryRun }}
               - --dry-run
               {{- end }}
+              {{- with .Values.extraArgs }}
+                {{- toYaml . | nindent 14 }}
+              {{- end }}
+
               {{- with .Values.resources }}
               resources:
                 {{- toYaml . | nindent 16 }}
