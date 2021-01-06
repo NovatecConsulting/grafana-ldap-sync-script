@@ -68,6 +68,9 @@ extraContainerConfig: {}
 # Add additional fully-baked manifests to the chart
 extraManifests: []
 
+# Restart Policy can either be Never or OnFailure
+restartPolicy: Never
+
 cronJob:
   startingDeadlineSeconds: 60
   schedule: "*/30 * * * *"
