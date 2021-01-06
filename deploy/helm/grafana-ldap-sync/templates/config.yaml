@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "grafana-ldap-sync.fullname" . }}-config
+  labels:
+    {{- include "grafana-ldap-sync.labels" . | nindent 4 }}
+stringData:
+  config.yml: |
+    config:
+      {{- .Values.config | toYaml | nindent 6 }}
+  {{- if .Values.csvContent }}
+  permissions.csv: {{ .Values.csvContent | quote }}
+  {{- else }}
+  {{- $comment := "In this case we need to generate the CSV usign some crazy logic" }}
+  permissions.csv: |
+    {{- $perms := list ( list "ZBV/LDAP-Gruppe" "Grafana-Team-Name" "Grafana-Team-ID" "Grafana-Folder-Name" "Grafana-Folder-UUID" "Grafana-Folder-Permissions" ) }}
+    {{- $teams := .Values.teams }}
+    {{- $folders := .Values.folders }}
+    {{- $addTeamsToAll := .Values.addTeamsToAll }}
+    {{- range $teamName, $groups := $teams }}
+      {{- $comment := "This is how we default the group list to the team name" }}
+      {{- if not $groups }}
+        {{- $groups = list $teamName }}
+      {{- end }}
+
+      {{- $comment := "Ensure that every permission level exists for every folder" }}
+      {{- range $permLevel, $teamsToAdd := $addTeamsToAll }}
+        {{- range $folderName, $permission := $folders }}
+          {{- if not ( get $permission $permLevel ) }}
+            {{- $permission = set $permission $permLevel ( list ) }}
+            {{- $folders = set $folders $folderName $permission }}
+          {{- end }}
+        {{- end }}
+      {{- end }}
+      
+      {{- range $folderName, $permission := $folders }}
+        {{- $comment := "This is how we default the permission" }}
+        {{- if not $permission }}
+          {{- $permission = dict "admin" ( list $folderName ) }}
+        {{- end }}
+
+        {{- range $permLevel, $permTeams := $permission }}
+          {{- $comment := "If the user decides to use Admin we must ensure it is lowercase" }}
+          {{- $permLevel = lower $permLevel }}
+
+          {{- $comment := "This is how we use the addTeamsToAll so that a team can be added to all folders" }}
+
+          {{- $teamsToAdd := ( get $addTeamsToAll $permLevel ) }}
+          {{- if $teamsToAdd }}
+            {{- $permTeams = concat $permTeams $teamsToAdd }}
+          {{- end }}
+
+          {{- range $t := $permTeams }}
+            {{- if eq ( toString $t ) $teamName }}
+              {{- range $group := $groups }}
+                {{- $ldapGroup := $group }}
+                {{- $grafanaTeamName := $teamName }}
+                {{- $grafanaTeamID := 1 }}
+                {{- $grafanaFolderName := $folderName }}
+                {{- $grafanaFolderUUID := $folderName | lower | replace " " "-" }}
+                {{- $grafanaFolderPermissions := title $permLevel }}
+
+                {{- $perms = append $perms ( list $ldapGroup $grafanaTeamName $grafanaTeamID $grafanaFolderName $grafanaFolderUUID $grafanaFolderPermissions ) }}
+              {{- end }} {{- $comment := "End range $groups" }}
+            {{- end }} {{- $comment := "end if eq $teamname" }}
+          {{- end }} {{- $comment := "end range $teams" }}
+        {{- end }} {{- $comment := "end range $permission" }}
+      {{- end }} {{- $comment := "end range $folders" }}
+    {{- end }} {{- $comment := "end range $teams" }}
+    {{- range $perm := $perms }}
+      {{- $perm | join "," | nindent 4  }}
+    {{- end }}
+  {{- end }} {{- $comment := "End if .csvContent" }}
+

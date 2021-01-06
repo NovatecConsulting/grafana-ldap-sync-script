@@ -1,0 +1,184 @@
+# Default values for grafana-ldap-sync.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: DOCKERHUB_USER/grafana-ldap-sync-script
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+  
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# If you want to customize very finely what is deployed, these can help:
+# Add volumes
+extraVolumes: []
+# Add volume mounts
+extraVolumeMounts: []
+# Add initContainers
+extraInitContainers: []
+# Add sidecar containers
+extraContainers: []
+# Add additional config options to the main container
+extraContainerConfig: {}
+# Add additional fully-baked manifests to the chart
+extraManifests: []
+
+cronJob:
+  startingDeadlineSeconds: 60
+  schedule: "*/30 * * * *"
+  successfulJobsHistoryLimit: 3
+  suspend: false
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+
+logLevel: info
+dryRun: true
+
+# Config maps to the config for the grafana ldap sync script. Content will be saved verbatim.
+config:
+  grafana:
+    # URL of the target grafana-server.
+    url: localhost:3000
+    # Protocol to use when connecting to grafana (http, https)
+    protocol: http
+    # User account name with admin rights on target grafana-server.
+    user: admin
+    # Password of account with admin rights on target grafana-server.
+    password: admin
+
+  ldap:
+    # Set to True if NTLM should be used for LDAP.
+    useNTLM: True
+    # If True, SSL will be used for connection to LDAP.
+    useSSL: False
+    # URL of the source LDAP-Server.
+    url: ldap.forumsys.com
+    # Port of the ldap instance provided in the url-variable.
+    port: 389
+    # Group search-base of the source LDAP-Server.
+    groupSearchBase: dc=example,dc=com
+    # Filter that should be used for the group search.
+    groupSearchFilter:
+    # Search recursively through groups
+    searchRecusrively: False
+    # Search-Base for user objects on the LDAP-Server.
+    userSearchBase: dc=example,dc=com
+    # Filter that should be used for user searches.
+    userSearchFilter:
+    # Attribute name under which the members of a group object can be found.
+    memberAttributeName: uniqueMember
+    # Name of the attribute which should be used as login in grafana.
+    userLoginAttribute: uid
+    # Name of the attribute which should be used as Name in grafana.
+    userNameAttribute: cn
+    # Name of the attribute which should be used as mail in grafana.
+    userMailAttribute: mail
+    # Login for the LDAP-Server.
+    login: test\cn=read-only-admin,dc=example,dc=com
+    # Password for the LDAP-Server.
+    password: password
+
+
+# If you want to set the CSV Content explicitly set the content of csvContent to a string.
+# If this is blank, then we'll use the `teams` and `folders` maps
+# Of note, the Grafana-Team-ID value is not used so you can ignore that or set it to 1
+# csvContent: |
+#   ZBV/LDAP-Gruppe,Grafana-Team-Name,Grafana-Team-ID,Grafana-Folder-Name,Grafana-Folder-UUID,Grafana-Folder-Permissions
+#   mathematicians,mathematicians,1,math,math_folder,Admin
+#   mathematicians,smart people,1,all,all,View
+#   scientists,smart people,1,all,all,View
+#   chemists,smart people,1,all,all,View
+csvContent: ""
+
+# Map of orgs -> teams -> ldap groups
+# If the array of groups is empty, uses the team name as the group name
+# $GRAFANA_TEAM_NAME:
+#  - $FIRST_LDAP_GROUP
+#  - $SECOND_LDAP_GROUP
+#
+# Like the CSV example above: (YAML allows spaces)
+# teams:
+#   smart people:
+#     - chemists
+#     - mathematicians
+#     - scientists
+#   mathematicians: [] # Same as: mathematicians: [ "mathematicians" ]
+teams: {}
+
+# Maps folders -> permissions -> teams
+# Permission should be one of: admin, editor, viewer
+# $GRAFANA_FOLDER_NAME:
+#   $PERMISSION:
+#   - $TEAM_NAME_ONE
+#   - $TEAM_NAME_TWO
+#
+# If the permission's list is empty, then it defuaults to:
+# $GRAFANA_FOLDER:ANME:
+#   admin:
+#   - $GRAFANA_FOLDER_NAME
+#
+# Like the CSV example above:
+# all:
+#   admin:
+#   - mathematicians
+#   view:
+#   - smart people
+# mathematicians: {} # Same as: mathematicians: { "admin": [ "mathematicians" ] }
+folders: {}
+
+# If you want to add a user team to have a specific permission to all folders then you can add them to this list
+# The teams in each array will be appended to the list of teams above (in `folders`)
+#
+# addTeamsToAll:
+#   $PERMISSION:
+#   - $TEAM_NAME_ONE
+#   - $TEAM_NAME_TWO
+addTeamsToAll:
+  admin: []
+  editor: []
+  viewer: []

@@ -1,0 +1,48 @@
+# Map of orgs -> teams -> ldap groups
+# If the array of groups is empty, uses the team name as the group name
+# $GRAFANA_TEAM_NAME:
+#  - $FIRST_LDAP_GROUP
+#  - $SECOND_LDAP_GROUP
+#
+# Like the CSV example above: (YAML allows spaces)
+teams:
+  smart people:
+    - chemists
+    - mathematicians
+    - scientists
+  mathematicians: [] # Same as: mathematicians: [ "mathematicians" ]
+  admin team:
+    - devops
+
+# Maps folders -> permissions -> teams
+# Permission should be one of: admin, editor, viewer
+# $GRAFANA_FOLDER_NAME:
+#   $PERMISSION:
+#   - $TEAM_NAME_ONE
+#   - $TEAM_NAME_TWO
+#
+# If the permission's list is empty, then it defuaults to:
+# $GRAFANA_FOLDER:ANME:
+#   admin:
+#   - $GRAFANA_FOLDER_NAME
+#
+folders:
+  all:
+    admin:
+    - mathematicians
+    view:
+    - smart people
+  mathematicians: {} # Same as: mathematicians: { "admin": [ "mathematicians" ] }
+
+# If you want to add a user team to have a specific permission to all folders then you can add them to this list
+# The teams in each array will be appended to the list of teams above (in `folders`)
+#
+# addTeamsToAll:
+#   $PERMISSION:
+#   - $TEAM_NAME_ONE
+#   - $TEAM_NAME_TWO
+addTeamsToAll:
+  admin: []
+  editor:
+  - admin team
+  viewer: []
