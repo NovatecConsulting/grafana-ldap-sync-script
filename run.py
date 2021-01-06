@@ -1,6 +1,7 @@
 from script.core import startUserSync
 import argparse
 import logging
+import sys
 
 class DispatchingFormatter:
     def __init__(self, formatters, default_formatter):
@@ -54,4 +55,5 @@ if __name__ == "__main__":
     setup_logger(log_level=args.log_level.upper())
 
     # starts the sync process
-    startUserSync(args.config_path, args.bind, args.dry_run)
+    exit_code = startUserSync(args.config_path, args.bind, args.dry_run)
+    sys.exit(exit_code)

@@ -29,7 +29,7 @@ docker-push: docker-build
 	docker push ${DOCKER_REPO}:${DOCKER_TAG}
 
 docker-run: docker-build
-	docker run --mount 'type=bind,source=${CONFIG_DIR},target=/data' ${DOCKER_REPO}:${DOCKER_TAG} --config /data/config.yml --bind /data/example.csv --log-level=debug
+	docker run --mount 'type=bind,source=${CONFIG_DIR},target=/data' ${DOCKER_REPO}:${DOCKER_TAG} --config /data/config.yml --bind /data/example.csv --log-level=debug --dry-run
 
 docker-explore: docker-build
 	docker run -it --entrypoint /bin/bash --mount 'type=bind,source=${CONFIG_DIR},target=/data' ${DOCKER_REPO}:${DOCKER_TAG} -o vi
