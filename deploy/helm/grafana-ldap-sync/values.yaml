@@ -156,7 +156,7 @@ csvContent: ""
 teams: {}
 
 # Maps folders -> permissions -> teams
-# Permission should be one of: admin, editor, viewer
+# Permission should be one of: admin, edit, view
 # $GRAFANA_FOLDER_NAME:
 #   $PERMISSION:
 #   - $TEAM_NAME_ONE
@@ -185,5 +185,5 @@ folders: {}
 #   - $TEAM_NAME_TWO
 addTeamsToAll:
   admin: []
-  editor: []
-  viewer: []
+  edit: []
+  view: []
