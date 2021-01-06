@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "grafana-ldap-sync.labels" . | nindent 4 }}
 stringData:
-  config.yml: |
+  config.yaml: |
     config:
       {{- .Values.config | toYaml | nindent 6 }}
   {{- if .Values.csvContent }}
