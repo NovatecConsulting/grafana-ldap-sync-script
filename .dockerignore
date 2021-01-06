@@ -1,0 +1,3 @@
+*.yml
+*.csv
+script/__pycache__**

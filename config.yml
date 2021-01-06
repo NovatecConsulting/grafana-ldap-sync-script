@@ -3,6 +3,8 @@ config:
 
     # URL of the target grafana-server.
     url: localhost:3000
+    # Protocol to use when connecting to grafana (http, https)
+    protocol: http
     # User account name with admin rights on target grafana-server.
     user: admin
     # Password of account with admin rights on target grafana-server.
@@ -21,6 +23,8 @@ config:
     groupSearchBase: dc=example,dc=com
     # Filter that should be used for the group search.
     groupSearchFilter:
+    # Search recursively through groups
+    searchRecusrively: False
     # Search-Base for user objects on the LDAP-Server.
     userSearchBase: dc=example,dc=com
     # Filter that should be used for user searches.

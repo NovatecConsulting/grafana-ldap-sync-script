@@ -7,7 +7,8 @@ from .helpers import *
 logger = logging.getLogger()
 
 configuration = ""
-user_cache = {}
+group_cache = {}
+member_cache = {}
 
 connection = ""
 
@@ -53,47 +54,50 @@ def fetch_users_of_group(group_name):
     """
     logger.info("Fetching users of ldap group %s " % group_name)
     result = []
-    connection.bind()
+    i_bound_connection = False
+    if not connection.bound:
+        i_bound_connection = True
+        connection.bind()
+
     if configuration.LDAP_GROUP_SEARCH_FILTER:
         group_query_filter = "(&(cn=" + group_name + ")" + configuration.LDAP_GROUP_SEARCH_FILTER + ")"
     else:
         group_query_filter = "(cn=" + group_name + ")"
+
     groups = connection.extend.standard.paged_search(search_base=configuration.LDAP_GROUP_SEARCH_BASE,
                                                      search_filter=group_query_filter,
                                                      search_scope=SUBTREE,
                                                      attributes=[configuration.LDAP_MEMBER_ATTRIBUTE],
                                                      paged_size=5,
                                                      generator=True)
+
     for group in groups:
-        for user in group["attributes"][configuration.LDAP_MEMBER_ATTRIBUTE]:
+        for member_dn in group["attributes"][configuration.LDAP_MEMBER_ATTRIBUTE]:
             if configuration.LDAP_USER_SEARCH_FILTER:
                 user_query_filter = configuration.LDAP_USER_SEARCH_FILTER
             else:
                 user_query_filter = "(objectClass=*)"
-            logger.info("Fetching user %s of ldap group %s " % (user, group_name))
-            user_data = connection.extend.standard.paged_search(search_base=user,
-                                                                search_scope=SUBTREE,
-                                                                search_filter=user_query_filter,
-                                                                attributes=[configuration.LDAP_USER_LOGIN_ATTRIBUTE,
-                                                                            configuration.LDAP_USER_NAME_ATTRIBUTE,
-                                                                            configuration.LDAP_USER_MAIL_ATTRIBUTE],
-                                                                paged_size=5)
-            for user_set in user_data:
-                data_set = user_set["attributes"]
-                login = data_set[configuration.LDAP_USER_LOGIN_ATTRIBUTE]
-                name = data_set[configuration.LDAP_USER_NAME_ATTRIBUTE]
-                mail = data_set[configuration.LDAP_USER_MAIL_ATTRIBUTE]
-                if not login or not name:
-                    continue
-                if not mail:
-                    mail = login
-                result.append({
-                    "login": login,
-                    "name": name,
-                    "email": mail
-                })
-    connection.unbind()
-    return result
+
+            user = get_member(member_dn)
+
+            if not user:
+                continue
+
+            # Handle nested groups
+            if "group" in user["objectClass"]:
+                if configuration.LDAP_SEARCH_RECURSIVELY:
+                    result = result + get_users_of_group(user["login"])
+                continue
+            
+            result.append(user)
+
+    if i_bound_connection:
+        connection.unbind()
+
+    # Filter out any duplicates from the result array
+    # Also we remove the object class key 
+    distinct_results = list({u["login"]: {i:u[i] for i in u if i != "objectClass"} for u in result}.values())
+    return distinct_results
 
 
 def get_users_of_group(group):
@@ -105,6 +109,66 @@ def get_users_of_group(group):
     :return: A list containing dictionaries. Each dictionary consists of a login attribute and the respective user
     login.
     """
-    if group not in user_cache:
-        user_cache[group] = fetch_users_of_group(group)
-    return user_cache[group]
+    if group not in group_cache:
+        group_cache[group] = fetch_users_of_group(group)
+    return group_cache[group]
+
+def get_member(member_dn):
+    """
+    Gets a member and uses a member_cache to speed things up. These members are the members fetched for groups
+    :param member_dn: The DN of the member to fetch
+    :return: A single member result
+    login.
+    """
+    if member_dn not in member_cache:
+        member_cache[member_dn] = fetch_member(member_dn)
+    return member_cache[member_dn]
+
+def fetch_member(member_dn):
+    """
+    Fetches an individual member from ldap
+    :param member_dn: The DN of the member
+    :return: A single member result
+    """
+    logger.info("Fetching member %s " % member_dn)
+
+    i_bound_connection = False
+    if not connection.bound:
+        i_bound_connection = True
+        connection.bind()
+
+    if configuration.LDAP_USER_SEARCH_FILTER:
+        member_query_filter = configuration.LDAP_USER_SEARCH_FILTER
+    else:
+        member_query_filter = "(objectClass=*)"
+
+    member_data = connection.extend.standard.paged_search(search_base=member_dn,
+                                                        search_scope=SUBTREE,
+                                                        search_filter=member_query_filter,
+                                                        attributes=[configuration.LDAP_USER_LOGIN_ATTRIBUTE,
+                                                                    configuration.LDAP_USER_NAME_ATTRIBUTE,
+                                                                    configuration.LDAP_USER_MAIL_ATTRIBUTE,
+                                                                    "objectClass"],
+                                                        paged_size=5)
+    for member_set in member_data:
+        data_set = member_set["attributes"]
+        login = data_set[configuration.LDAP_USER_LOGIN_ATTRIBUTE]
+        name = data_set[configuration.LDAP_USER_NAME_ATTRIBUTE]
+        mail = data_set[configuration.LDAP_USER_MAIL_ATTRIBUTE]
+        objectClass = data_set["objectClass"]
+
+        if not login or not name:
+            return None
+
+        if not mail:
+            mail = login
+
+    if i_bound_connection:
+        connection.unbind()
+
+    return {
+        "login": login,
+        "name": name,
+        "email": mail,
+        "objectClass": objectClass
+    }

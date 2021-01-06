@@ -1,0 +1,1 @@
+This helm chart deploys a cronjob which runs on, by default, a 30 minute schedule.
