@@ -19,7 +19,7 @@ $ pip install --user -r requirements.txt
 
 It can be simply run with:
 ```bash
-$ python run.py [-h] --config <path-to-config.yml> --bind <path-to-bind-csv> [--dry-run]
+$ python run.py [-h] --config <path-to-config.yml> --bind <path-to-bind-csv> [--dry-run] [--log-level debug]
 ```
 
 ## Usage
