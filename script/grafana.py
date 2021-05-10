@@ -65,6 +65,25 @@ def create_user_with_random_pw(user):
         grafana_api.admin.create_user(user_dict)
 
 
+def update_user(user, old_user):
+    """
+    Updates a user from a dictionary resembling a user.
+    :param user: The dictionary off of which the user should be created.
+    """
+    login = user["login"]
+    if not login == "admin":
+        if configuration.DRY_RUN:
+            logger.debug("Iconsistend user data set found")
+            logger.debug("Old data: %s", (str(old_user)))
+            logger.debug("Would have updated to new data: %s", (str(user)))
+        else:
+            logger.debug("Iconsistend user data set found")
+            logger.debug("Old data: %s", (str(old_user)))
+            logger.debug("Updating to new data: %s", (str(user)))
+            return grafana_api.users.update_user(grafana_api.users.find_user(login)["id"], user)
+    return False
+
+
 def delete_user_by_login(login):
     """
     Deletes the user with the given login.
