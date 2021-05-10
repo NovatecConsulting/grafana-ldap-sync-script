@@ -2,6 +2,7 @@ from script.core import startUserSync
 import argparse
 import logging
 
+
 class DispatchingFormatter:
     def __init__(self, formatters, default_formatter):
         self._formatters = formatters
@@ -11,7 +12,16 @@ class DispatchingFormatter:
         formatter = self._formatters.get(record.name, self._default_formatter)
         return formatter.format(record)
 
-def setup_logger():
+
+def resolve_log_level(logging_level):
+    if logging_level.upper() == "ERROR":
+        return logging.ERROR
+    if logging_level.upper() == "DEBUG":
+        return logging.DEBUG
+    return logging.INFO
+
+
+def setup_logger(logging_level):
     """
     Setting up the used logger. The 'mutate' logger will print whether dry-run is used and changes are being applied.
     """
@@ -35,8 +45,9 @@ def setup_logger():
     )
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(resolve_log_level(logging_level))
     logger.addHandler(handler)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process config path')
@@ -46,10 +57,13 @@ if __name__ == "__main__":
                                                                          'apply changes to grafana. The would-be '
                                                                          'changes are printed to the console.',
                         action='store_true')
+    parser.add_argument('--log-level', dest='log_level', default="INFO", help='Sets the log level of the script. '
+                                                                              'Possible values are INFO, DEBUG and '
+                                                                              'ERROR ')
     args = parser.parse_args()
 
     # setup the logger
-    setup_logger()
+    setup_logger(args.log_level)
 
     # starts the sync process
     startUserSync(args.config_path, args.bind, args.dry_run)
