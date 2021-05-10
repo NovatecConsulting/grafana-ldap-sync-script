@@ -96,10 +96,10 @@ def add_users(grafana_team, ldap_groups):
         ldap_users = get_users_of_group(ldap_group)
         for user in ldap_users:
             if user not in grafana_users:
-                if any(ldap_user['login'] == user['login'] for ldap_user in ldap_users):
-                    update_user(user, next(grafana_user for grafana_user in grafana_users if grafana_user["login"] == user["login"]))
                 if not login_taken(user["login"]):
                     create_user_with_random_pw(user)
+                elif any(ldap_user['login'] == user['login'] for ldap_user in ldap_users):
+                    update_user(user, next(grafana_user for grafana_user in grafana_users if grafana_user["login"] == user["login"]))
                 add_user_to_team(user["login"], grafana_team)
 
 
