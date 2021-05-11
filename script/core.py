@@ -1,6 +1,5 @@
 import csv
 import sys
-import logging
 
 from .grafana import *
 from .ldap import *

@@ -40,7 +40,7 @@ class read_mapping_from_csv(TestCase):
                                        "test_grafana_folder_permission"]
                                       ]
 
-        mapping = core.read_mapping_from_csv()
+        mapping = core.read_mapping_from_csv(bind='')
 
         self.assertTrue("teams" in mapping)
         self.assertTrue("test_grafana_team" in mapping["teams"])
@@ -56,17 +56,19 @@ class read_mapping_from_csv(TestCase):
 
 
 class add_users(TestCase):
+    @patch("script.grafana.update_user")
     @patch("script.core.get_members_of_team")
     @patch("script.core.get_users_of_group")
     @patch("script.core.login_taken")
     @patch("script.core.create_user_with_random_pw")
     @patch("script.core.add_user_to_team")
     def test_adding_users(self, mock_add_user_to_team, mock_create_user_with_random_pw, mock_login_taken,
-                          mock_get_users_of_group, mock_get_members_of_team):
+                          mock_get_users_of_group, mock_get_members_of_team, mock_update_user):
         ldap_groups = ["group1", "group2"]
         mock_add_user_to_team.return_value = True
         mock_create_user_with_random_pw.return_value = True
         mock_login_taken.return_value = False
+        mock_update_user.return_value = True
         mock_get_users_of_group.return_value = [{"login": "user1"}, {"login": "user2"}]
         mock_get_members_of_team.return_value = [{"login": "user1"}]
 
@@ -76,6 +78,27 @@ class add_users(TestCase):
         self.assertTrue(mock_add_user_to_team.call_count, 1)
         mock_create_user_with_random_pw.assert_called_with({"login": "user2"})
         mock_add_user_to_team.assert_called_with("user2", "grafana_team")
+
+    @patch("script.core.update_user")
+    @patch("script.core.get_members_of_team")
+    @patch("script.core.get_users_of_group")
+    @patch("script.core.login_taken")
+    @patch("script.core.create_user_with_random_pw")
+    @patch("script.core.add_user_to_team")
+    def test_outdated_user_data(self, mock_add_user_to_team, mock_create_user_with_random_pw, mock_login_taken,
+                                mock_get_users_of_group, mock_get_members_of_team, mock_update_user):
+        ldap_groups = ["group1", "group2"]
+        mock_add_user_to_team.return_value = True
+        mock_create_user_with_random_pw.return_value = True
+        mock_login_taken.return_value = True
+        mock_update_user.return_value = True
+        mock_get_users_of_group.return_value = [{"login": "user1", "name": "foo"}, {"login": "user2"}]
+        mock_get_members_of_team.return_value = [{"login": "user1", "name": "bar"}, {"login": "user2"}]
+
+        core.add_users("grafana_team", ldap_groups)
+
+        self.assertTrue(mock_update_user.call_count, 1)
+        mock_update_user.assert_called_with({"login": "user1", "name": "foo"}, {"login": "user1", "name": "bar"})
 
     @patch("script.core.get_members_of_team")
     @patch("script.core.get_users_of_group")
@@ -367,7 +390,8 @@ class export(TestCase):
     @patch("script.core.remove_unused_items")
     @patch("script.core.unlock")
     @patch("script.core.setup_ldap")
-    def test_locks_and_unlocks(self, mock_setup_ldap, mock_unlock, mock_remove_unused_items, mock_update_folders, mock_update_teams,
+    def test_locks_and_unlocks(self, mock_setup_ldap, mock_unlock, mock_remove_unused_items, mock_update_folders,
+                               mock_update_teams,
                                mock_read_mapping_from_csv, mock_setup_grafana, mock_config, mock_lock):
         mock_setup_ldap.return_value = True
         mock_unlock.return_value = True
@@ -393,7 +417,8 @@ class export(TestCase):
     @patch("script.core.remove_unused_items")
     @patch("script.core.unlock")
     @patch("script.core.setup_ldap")
-    def test_locks_and_unlocks_on_connection_error(self, mock_setup_ldap, mock_unlock, mock_remove_unused_items, mock_update_folders,
+    def test_locks_and_unlocks_on_connection_error(self, mock_setup_ldap, mock_unlock, mock_remove_unused_items,
+                                                   mock_update_folders,
                                                    mock_update_teams, mock_read_mapping_from_csv, mock_setup_grafana,
                                                    mock_config, mock_lock):
         mock_setup_ldap.return_value = True
@@ -419,7 +444,8 @@ class export(TestCase):
     @patch("script.core.remove_unused_items")
     @patch("script.core.unlock")
     @patch("script.core.setup_ldap")
-    def test_locks_and_unlocks_on_LDAPSocketOpenError(self, mock_setup_ldap, mock_unlock, mock_remove_unused_items, mock_update_folders,
+    def test_locks_and_unlocks_on_LDAPSocketOpenError(self, mock_setup_ldap, mock_unlock, mock_remove_unused_items,
+                                                      mock_update_folders,
                                                       mock_update_teams, mock_read_mapping_from_csv,
                                                       mock_setup_grafana,
                                                       mock_config, mock_lock):
