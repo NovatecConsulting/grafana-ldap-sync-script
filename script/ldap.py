@@ -88,9 +88,9 @@ def fetch_users_of_group(group_name):
                 if not mail:
                     mail = login
                 result.append({
-                    "login": login,
-                    "name": name,
-                    "email": mail
+                    "login": login if isinstance(login, str) else login[0],
+                    "name": name if isinstance(name, str) else name[0],
+                    "email": mail if isinstance(mail, str) else mail[0]
                 })
     connection.unbind()
     return result
