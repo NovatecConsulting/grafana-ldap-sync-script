@@ -1,5 +1,5 @@
-from grafana_api.grafana_api import GrafanaClientError, GrafanaBadInputError
-from grafana_api.grafana_face import GrafanaFace
+from grafana_client.client import GrafanaClientError, GrafanaBadInputError
+from grafana_client import GrafanaApi
 from .config import *
 from .helpers import *
 import logging
@@ -13,7 +13,7 @@ logger_mut = logging.getLogger("mutate")
 def setup_grafana(config_dict):
     global grafana_api, configuration
     configuration = config_dict
-    grafana_api = GrafanaFace(
+    grafana_api = GrafanaApi(
         auth=configuration.GRAFANA_AUTH,
         host=configuration.GRAFANA_URL
     )
