@@ -1,5 +1,5 @@
 requests~=2.24.0
-grafana_api~=1.0.2
+grafana_client~=2.0.2
 ldap3~=2.6
 PyYAML~=5.3.1
 pyasn1>=0.4.6
