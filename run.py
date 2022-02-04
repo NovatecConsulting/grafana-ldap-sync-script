@@ -35,7 +35,7 @@ def setup_logger():
     )
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
     logger.addHandler(handler)
 
 if __name__ == "__main__":

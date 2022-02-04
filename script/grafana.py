@@ -15,7 +15,8 @@ def setup_grafana(config_dict):
     configuration = config_dict
     grafana_api = GrafanaApi(
         auth=configuration.GRAFANA_AUTH,
-        host=configuration.GRAFANA_URL
+        host=configuration.GRAFANA_URL,
+        protocol=configuration.GRAFANA_PROTOCOL
     )
 
 
