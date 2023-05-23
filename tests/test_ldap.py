@@ -50,43 +50,65 @@ class get_ntml_connection(TestCase):
 
 
 class fetch_users_of_group(TestCase):
-    @patch("script.ldap.get_ntlm_connection")
+    @patch("script.ldap.connection")
     @patch("script.ldap.configuration")
-    def test_retrieves_users_NTML(self, mock_configuration, mock_get_ntlm_connection):
+    def test_retrieves_users_NTML(self, mock_configuration, mock_connection):
         mock_configuration.LDAP_USER_SEARCH_BASE.value = "my_search_base"
         mock_configuration.LDAP_GROUP_DESCRIPTOR = "my_group"
         mock_configuration.LDAP_IS_NTLM = True
         mock_configuration.LDAP_MEMBER_ATTRIBUTE = "member"
         mock_configuration.LDAP_USER_LOGIN_ATTRIBUTE = "uid"
-        mock_connection = Mock()
-        mock_connection.extend.standard.paged_search.return_value = [
-            {"attributes": {"member": ["uid=my_login, foo=bar"],
-                            "another_attribute": ["i_am_not_retrieved"]}}]
-        mock_get_ntlm_connection.return_value = mock_connection
+        mock_configuration.LDAP_USER_NAME_ATTRIBUTE = "name"
+        mock_configuration.LDAP_USER_MAIL_ATTRIBUTE = "mail"
+        mock_connection.extend.standard.paged_search.side_effect = [
+            [
+                {
+                    "attributes": {
+                        "member": ["uid=my_login, foo=bar"],
+                        "another_attribute": ["i_am_not_retrieved"]
+                    }
+                }
+            ],[
+                {
+                    "attributes": {"uid":"my_login", "name":"my_name","mail":"my_mail"}
+                }
+            ]
+        ]
 
         output = ldap.fetch_users_of_group("test_group")
 
-        self.assertEqual([{"login": "my_login"}], output)
-        self.assertEqual(mock_get_ntlm_connection.call_count, 1)
+        self.assertEqual([{"login": "my_login", "name":"my_name","email":"my_mail"}], output)
+        self.assertEqual(mock_connection.extend.standard.paged_search.call_count, 2)
 
-    @patch("script.ldap.get_ldap_connection")
+    @patch("script.ldap.connection")
     @patch("script.ldap.configuration")
-    def test_retrieves_users(self, mock_configuration, mock_get_ldap_connection):
+    def test_retrieves_users(self, mock_configuration, mock_connection):
         mock_configuration.LDAP_USER_SEARCH_BASE.value = "my_search_base"
         mock_configuration.LDAP_GROUP_DESCRIPTOR = "my_group"
         mock_configuration.LDAP_IS_NTLM = False
         mock_configuration.LDAP_MEMBER_ATTRIBUTE = "member"
         mock_configuration.LDAP_USER_LOGIN_ATTRIBUTE = "uid"
-        mock_connection = Mock()
-        mock_connection.extend.standard.paged_search.return_value = [
-            {"attributes": {"member": ["uid=my_login, foo=bar"],
-                            "another_attribute": ["i_am_not_retrieved"]}}]
-        mock_get_ldap_connection.return_value = mock_connection
+        mock_configuration.LDAP_USER_NAME_ATTRIBUTE = "name"
+        mock_configuration.LDAP_USER_MAIL_ATTRIBUTE = "mail"
+        mock_connection.extend.standard.paged_search.side_effect = [
+            [
+                {
+                    "attributes": {
+                        "member": ["uid=my_login, foo=bar"],
+                        "another_attribute": ["i_am_not_retrieved"]
+                    }
+                }
+            ],[
+                {
+                    "attributes": {"uid":"my_login", "name":"my_name","mail":"my_mail"}
+                }
+            ]
+        ]
 
         output = ldap.fetch_users_of_group("test_group")
 
-        self.assertEqual([{"login": "my_login"}], output)
-        self.assertEqual(mock_get_ldap_connection.call_count, 1)
+        self.assertEqual([{"login": "my_login", "name":"my_name","email":"my_mail"}], output)
+        self.assertEqual(mock_connection.extend.standard.paged_search.call_count, 2)
 
 
 class get_users_of_group(TestCase):

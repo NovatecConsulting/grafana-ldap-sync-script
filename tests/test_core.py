@@ -31,16 +31,18 @@ class read_mapping_from_csv(TestCase):
                                        "header3",
                                        "header4",
                                        "header5",
-                                       "header6"],
+                                       "header6",
+                                       "header7"],
                                       ["test_ldap_group",
                                        "test_grafana_team",
                                        "test_grafana_team-id",
                                        "test_grafana_folder_name",
                                        "test_grafana_folder_uid",
-                                       "test_grafana_folder_permission"]
+                                       "test_grafana_folder_permission",
+                                       "test_grafana_folder_permission_for_viewer"]
                                       ]
 
-        mapping = core.read_mapping_from_csv()
+        mapping = core.read_mapping_from_csv("")
 
         self.assertTrue("teams" in mapping)
         self.assertTrue("test_grafana_team" in mapping["teams"])
@@ -51,7 +53,8 @@ class read_mapping_from_csv(TestCase):
         self.assertTrue("name" in mapping["folders"]["test_grafana_folder_uid"])
         self.assertTrue("permissions" in mapping["folders"]["test_grafana_folder_uid"])
         self.assertEqual("test_grafana_folder_name", mapping["folders"]["test_grafana_folder_uid"]["name"])
-        self.assertEqual([{"teamId": "test_grafana_team", "permission": "test_grafana_folder_permission"}],
+        self.assertEqual([{"teamId": "test_grafana_team", "permission": "test_grafana_folder_permission"},
+                        {"role": "Viewer", "permission": "test_grafana_folder_permission_for_viewer"}],
                          mapping["folders"]["test_grafana_folder_uid"]["permissions"])
 
 
@@ -379,7 +382,7 @@ class export(TestCase):
         mock_config.return_value = True
         mock_lock.return_value = True
 
-        core.startUserSync("")
+        core.startUserSync("", "", "")
 
         self.assertEqual(mock_lock.call_count, 1)
         self.assertEqual(mock_unlock.call_count, 1)
@@ -405,7 +408,7 @@ class export(TestCase):
         mock_config.return_value = True
         mock_lock.return_value = True
 
-        core.startUserSync("")
+        core.startUserSync("", "", "")
 
         self.assertEqual(mock_lock.call_count, 1)
         self.assertEqual(mock_unlock.call_count, 1)
@@ -432,7 +435,7 @@ class export(TestCase):
         mock_config.return_value = True
         mock_lock.return_value = True
 
-        core.startUserSync("")
+        core.startUserSync("", "", "")
 
         self.assertEqual(mock_lock.call_count, 1)
         self.assertEqual(mock_unlock.call_count, 1)
@@ -457,7 +460,7 @@ class export(TestCase):
         mock_config.return_value = True
         mock_lock.return_value = False
 
-        core.startUserSync("")
+        core.startUserSync("", "", "")
 
         self.assertEqual(mock_lock.call_count, 1)
         self.assertFalse(mock_remove_unused_items.called)
