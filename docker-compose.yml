@@ -17,9 +17,9 @@ services:
     build:
       dockerfile: Dockerfile
     volumes:
-      - ./example.csv:/app/config/bind.csv:ro
+      - ./example.csv:/data/bind.csv:ro
       # you need to change grafana.config.url to 'grafana:3000' from 'localhost:3000' for this to work!
-      - ./config.yml:/app/config/config.yml:ro
+      - ./config.yml:/data/config.yml:ro
     depends_on:
       grafana:
         condition: service_healthy
