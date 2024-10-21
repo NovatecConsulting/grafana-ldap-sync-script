@@ -1,8 +1,10 @@
-from grafana_client.client import GrafanaClientError, GrafanaBadInputError
+import logging
+
 from grafana_client import GrafanaApi
+from grafana_client.client import GrafanaBadInputError, GrafanaClientError
+
 from .config import *
 from .helpers import *
-import logging
 
 grafana_api = ""
 configuration = ""
@@ -16,7 +18,8 @@ def setup_grafana(config_dict):
     grafana_api = GrafanaApi(
         auth=configuration.GRAFANA_AUTH,
         host=configuration.GRAFANA_URL,
-        protocol=configuration.GRAFANA_PROTOCOL
+        protocol=configuration.GRAFANA_PROTOCOL,
+        organization_id=configuration.GRAFANA_ORG_ID
     )
 
 
