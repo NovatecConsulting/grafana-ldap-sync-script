@@ -1,6 +1,8 @@
-from script.core import startUserSync
 import argparse
 import logging
+
+from script.core import startUserSync
+
 
 class DispatchingFormatter:
     def __init__(self, formatters, default_formatter):
@@ -23,7 +25,7 @@ def setup_logger():
     else:
         log_format_mut = log_format
 
-    
+
     logger = logging.getLogger()
     while logger.handlers:
             logger.handlers.pop()
