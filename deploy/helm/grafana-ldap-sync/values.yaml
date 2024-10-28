@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: DOCKERHUB_USER/grafana-ldap-sync-script
+  repository: ghcr.io/novatecconsulting/grafana-ldap-sync-script
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
@@ -25,18 +25,21 @@ serviceAccount:
 
 podAnnotations: {}
 
-podSecurityContext: {}
+podSecurityContext:
+  {}
   # fsGroup: 2000
 
-securityContext: {}
+securityContext:
+  {}
   # capabilities:
   #   drop:
   #   - ALL
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
-  
-resources: {}
+
+resources:
+  {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -95,6 +98,8 @@ config:
     user: admin
     # Password of account with admin rights on target grafana-server.
     password: admin
+    # Grafana Organization ID that should be used to insert the teams.
+    org_id: 1
 
   ldap:
     # Set to True if NTLM should be used for LDAP.
@@ -127,7 +132,6 @@ config:
     login: test\cn=read-only-admin,dc=example,dc=com
     # Password for the LDAP-Server.
     password: password
-
 
 # If you want to set the CSV Content explicitly set the content of csvContent to a string.
 # If this is blank, then we'll use the `teams` and `folders` maps
