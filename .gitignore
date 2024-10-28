@@ -134,3 +134,8 @@ dmypy.json
 .idea
 /shelf/
 /workspace.xml
+
+# Nix
+.devenv
+.direnv
+.envrc
