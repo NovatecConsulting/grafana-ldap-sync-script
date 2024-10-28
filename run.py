@@ -2,6 +2,8 @@ import argparse
 import logging
 import sys
 
+from script.core import startUserSync
+
 class DispatchingFormatter:
     def __init__(self, formatters, default_formatter):
         self._formatters = formatters

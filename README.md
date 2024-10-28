@@ -31,9 +31,9 @@ Before starting the script you need to enter your grafana & ldap credentials in 
 path to your .csv file containing the bindings.
 
 ### Binding
-To bind LDAP-groups to grafana-teams and grant these teams access to folders you need to provide a .csv file. Please note 
-that the first row of the csv is recognized as a header-row and is therefore being ignored. 
-The file needs to contain the following information in this exact order: 
+To bind LDAP-groups to grafana-teams and grant these teams access to folders you need to provide a .csv file. Please note
+that the first row of the csv is recognized as a header-row and is therefore being ignored.
+The file needs to contain the following information in this exact order:
 * **LDAP-Group**: The LDAP group which will be used for mapping.
 * **Grafana-Team Name**: The name of the Grafana team which will be created (if not exist) and where the group's users will be added to.
 * **Grafana-Team ID**: The ID of the Grafana team (currently not used).
@@ -65,7 +65,7 @@ Using this CSV mapping will result in the following operations:
 
 #### Removing Bindings
 When a binding is removed in your .csv-file, this binding is also removed by the script. So if there is a team in your grafana instance which
-is not defined by the current binding the team will be deleted. This also applies to users. **This does not apply to folders! 
+is not defined by the current binding the team will be deleted. This also applies to users. **This does not apply to folders!
 Folders need to be deleted manually if not needed anymore!**
 
 
