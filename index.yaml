@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  grafana-ldap-sync:
+  - apiVersion: v2
+    appVersion: 1.2.0
+    created: "2024-10-28T17:20:53.97992232Z"
+    description: A Helm chart for Kubernetes
+    digest: 9e7a545299e6ada3e8145b7d112a64036d25237bc331f725afac7a15f41016c0
+    name: grafana-ldap-sync
+    type: application
+    urls:
+    - https://NovatecConsulting.github.io/grafana-ldap-sync-script/grafana-ldap-sync-1.0.5.tgz
+    version: 1.0.5
+generated: "2024-10-28T17:20:53.979204964Z"
