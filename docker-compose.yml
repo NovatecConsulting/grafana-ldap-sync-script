@@ -1,0 +1,29 @@
+services:
+  grafana:
+    image: grafana/grafana:11.2.2
+    restart: unless-stopped
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 1m
+      timeout: 1s
+      retries: 3
+    ports:
+      - 3000:3000
+    attach: false
+
+  grafana-ldap-sync-script:
+    build:
+      dockerfile: Dockerfile
+    volumes:
+      - ./example.csv:/data/bind.csv:ro
+      # you need to change grafana.config.url to 'grafana:3000' from 'localhost:3000' for this to work!
+      - ./config.yml:/data/config.yml:ro
+    depends_on:
+      grafana:
+        condition: service_healthy
+
+
+volumes:
+  grafana-storage:

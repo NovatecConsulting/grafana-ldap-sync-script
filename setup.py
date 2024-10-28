@@ -1,7 +1,7 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
-    name='grafana-ldap-sync-script',
+    name='script',
     version='1.1.0',
     description='Script for syncing LDAP Users & Groups with Grafana Users & Teams',
     packages=find_packages(exclude=('tests', 'docs')),
