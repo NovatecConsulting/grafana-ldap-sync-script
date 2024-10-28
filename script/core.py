@@ -250,11 +250,11 @@ def startUserSync(config_path, bind, dry_run):
             logger.info("Starting user synchronization...")
 
             configuration = config(config_path)
-            
+
             configuration.DRY_RUN = dry_run
             if configuration.DRY_RUN:
                 logger.info("!! DryRun enabled: Changes will not be applied !!")
-            
+
             logger.info("=================================================")
 
             logger.info("Setting up the connection to the Grafana server..")
