@@ -1,3 +1,0 @@
-include run.py
-include config.yml
-include requirements.txt
