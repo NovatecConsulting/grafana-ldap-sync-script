@@ -242,6 +242,7 @@ def startUserSync(config_path, bind, dry_run):
     folders and users is performed.
     If a .lock file is present, no action is performed.
     """
+    exit_code=1
     global configuration
     if lock():
         try:
@@ -249,11 +250,11 @@ def startUserSync(config_path, bind, dry_run):
             logger.info("Starting user synchronization...")
 
             configuration = config(config_path)
-            
+
             configuration.DRY_RUN = dry_run
             if configuration.DRY_RUN:
                 logger.info("!! DryRun enabled: Changes will not be applied !!")
-            
+
             logger.info("=================================================")
 
             logger.info("Setting up the connection to the Grafana server..")
@@ -270,6 +271,7 @@ def startUserSync(config_path, bind, dry_run):
             remove_unused_items(mapping["teams"])
 
             logger.info("Task finished successfully!")
+            exit_code=0
         except LDAPSocketOpenError:
             logger.error("Task aborted, unable to reach LDAP-Server.")
         except ConnectionError:
@@ -279,3 +281,5 @@ def startUserSync(config_path, bind, dry_run):
         unlock()
     else:
         logger.error("Task aborted, process is already active!")
+    return exit_code
+

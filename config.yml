@@ -24,6 +24,8 @@ config:
     groupSearchBase: dc=example,dc=com
     # Filter that should be used for the group search.
     groupSearchFilter:
+    # Search recursively through groups
+    searchRecusrively: False
     # Search-Base for user objects on the LDAP-Server.
     userSearchBase: dc=example,dc=com
     # Filter that should be used for user searches.

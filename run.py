@@ -1,8 +1,8 @@
 import argparse
 import logging
+import sys
 
 from script.core import startUserSync
-
 
 class DispatchingFormatter:
     def __init__(self, formatters, default_formatter):
@@ -13,7 +13,7 @@ class DispatchingFormatter:
         formatter = self._formatters.get(record.name, self._default_formatter)
         return formatter.format(record)
 
-def setup_logger():
+def setup_logger(log_level = "INFO"):
     """
     Setting up the used logger. The 'mutate' logger will print whether dry-run is used and changes are being applied.
     """
@@ -37,13 +37,15 @@ def setup_logger():
     )
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
-    logger.setLevel(logging.INFO)
+
+    logger.setLevel(logging.getLevelName(log_level))
     logger.addHandler(handler)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process config path')
     parser.add_argument('--config', dest='config_path', help='Path to the config_mock.yml file', required=True)
     parser.add_argument('--bind', dest='bind', help='Path to the binding file', required=True)
+    parser.add_argument('--log-level', dest='log_level', help='Log level to use: DEBUG, INFO, WARN, ERROR', required=False, default="INFO")
     parser.add_argument('--dry-run', dest='dry_run', default=False, help='If this flag is set, the script does not '
                                                                          'apply changes to grafana. The would-be '
                                                                          'changes are printed to the console.',
@@ -51,7 +53,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # setup the logger
-    setup_logger()
+    setup_logger(log_level=args.log_level.upper())
 
     # starts the sync process
-    startUserSync(args.config_path, args.bind, args.dry_run)
+    exit_code = startUserSync(args.config_path, args.bind, args.dry_run)
+    sys.exit(exit_code)
