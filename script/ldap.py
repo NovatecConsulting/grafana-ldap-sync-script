@@ -88,14 +88,14 @@ def fetch_users_of_group(group_name):
                 if configuration.LDAP_SEARCH_RECURSIVELY:
                     result = result + get_users_of_group(user["login"])
                 continue
-            
+
             result.append(user)
 
     if i_bound_connection:
         connection.unbind()
 
     # Filter out any duplicates from the result array
-    # Also we remove the object class key 
+    # Also we remove the object class key
     distinct_results = list({u["login"]: {i:u[i] for i in u if i != "objectClass"} for u in result}.values())
     return distinct_results
 

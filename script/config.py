@@ -1,4 +1,5 @@
 import logging
+
 import yaml
 
 logging.basicConfig(level=logging.INFO)
@@ -15,6 +16,7 @@ class config:
     GRAFANA_AUTH = ""
     GRAFANA_URL = ""
     GRAFANA_PROTOCOL = "http"
+    GRAFANA_ORG_ID = None
 
     LDAP_SERVER_URL = ""
     LDAP_PORT = ""
@@ -52,8 +54,10 @@ class config:
         )
         self.GRAFANA_URL = grafana_config.get("url", self.GRAFANA_URL)
         self.GRAFANA_PROTOCOL = grafana_config.get("protocol", self.GRAFANA_PROTOCOL)
+        self.GRAFANA_ORG_ID = config["grafana"]["org_id"] if "org_id" in config["grafana"] else None
 
         ldap_config = config.get("ldap", {})
+
         self.LDAP_SERVER_URL = ldap_config.get("url", self.LDAP_SERVER_URL)
         self.LDAP_PORT = ldap_config.get("port", self.LDAP_PORT)
         self.LDAP_USER = ldap_config.get("login", self.LDAP_USER)

@@ -1,4 +1,3 @@
-from script.core import startUserSync
 import argparse
 import logging
 import sys
@@ -24,7 +23,7 @@ def setup_logger(log_level = "INFO"):
     else:
         log_format_mut = log_format
 
-    
+
     logger = logging.getLogger()
     while logger.handlers:
             logger.handlers.pop()

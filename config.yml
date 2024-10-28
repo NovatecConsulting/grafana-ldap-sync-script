@@ -1,6 +1,5 @@
 config:
   grafana:
-
     # URL of the target grafana-server.
     url: localhost:3000
     # Protocol to use when connecting to grafana (http, https)
@@ -9,6 +8,8 @@ config:
     user: admin
     # Password of account with admin rights on target grafana-server.
     password: admin
+    # Grafana Organization ID that should be used to insert the teams.
+    # org_id: 1
 
   ldap:
     # Set to True if NTLM should be used for LDAP.
