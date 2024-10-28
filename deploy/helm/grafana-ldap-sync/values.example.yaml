@@ -29,9 +29,9 @@ teams:
 folders:
   all:
     admin:
-    - mathematicians
+      - mathematicians
     view:
-    - smart people
+      - smart people
   mathematicians: {} # Same as: mathematicians: { "admin": [ "mathematicians" ] }
 
 # If you want to add a user team to have a specific permission to all folders then you can add them to this list
@@ -44,5 +44,5 @@ folders:
 addTeamsToAll:
   admin: []
   edit:
-  - admin team
+    - admin team
   view: []
