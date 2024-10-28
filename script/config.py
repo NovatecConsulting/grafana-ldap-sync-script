@@ -42,10 +42,13 @@ class config:
         Loads the config_mock.yml file present in the directory and fills all global variables with the defined config.
         """
         try:
-            config = yaml.safe_load(open(config_path))["config"]
+            with open(config_path) as f:
+                config = yaml.safe_load(f)["config"]
         except FileNotFoundError as e:
-            logger.error("Config-file %s does not exist!", config_path)
+            logger.error("Config file %s does not exist!", config_path)
             raise e
+        except Exception as e:
+            logger.error("Error reading config file %s: %s", config_path, str(e))
 
         grafana_config = config.get("grafana", {})
         self.GRAFANA_AUTH = (
