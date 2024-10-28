@@ -1,0 +1,67 @@
+name: package-helm-chart
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'deploy/helm/**'
+
+  workflow_dispatch:
+
+jobs:
+  package-helm-chart:
+    permissions:
+      contents: read
+      packages: write
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set environment variables
+        id: set-variables
+        run: |
+          echo "REPOSITORY=ghcr.io/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+          echo "VERSION=$(yq -r .version ./deploy/helm/grafana-ldap-sync/Chart.yaml)" >> "$GITHUB_OUTPUT"
+
+      - name: Env variable output
+        id: test-variables
+        run: |
+          echo ${{ steps.set-variables.outputs.REPOSITORY }}
+          echo ${{ steps.set-variables.outputs.VERSION }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Package and push helm chart
+        run: |
+          helm package ./deploy/helm/grafana-ldap-sync --version ${{ steps.set-variables.outputs.VERSION }}
+          helm push ./grafana-ldap-sync-${{ steps.set-variables.outputs.VERSION }}.tgz oci://${{ steps.set-variables.outputs.REPOSITORY }}/charts
+
+  publish-helm-chart:
+    permissions:
+      id-token: write
+      packages: write
+      contents: write
+      actions: read
+      deployments: read
+      pull-requests: read
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Publish Helm chart to GitHub Pages
+        uses: stefanprodan/helm-gh-pages@master
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          linting: off
