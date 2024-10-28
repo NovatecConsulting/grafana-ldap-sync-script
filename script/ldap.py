@@ -73,11 +73,6 @@ def fetch_users_of_group(group_name):
 
     for group in groups:
         for member_dn in group["attributes"][configuration.LDAP_MEMBER_ATTRIBUTE]:
-            if configuration.LDAP_USER_SEARCH_FILTER:
-                user_query_filter = configuration.LDAP_USER_SEARCH_FILTER
-            else:
-                user_query_filter = "(objectClass=*)"
-
             user = get_member(member_dn)
 
             if not user:
@@ -96,8 +91,7 @@ def fetch_users_of_group(group_name):
 
     # Filter out any duplicates from the result array
     # Also we remove the object class key
-    distinct_results = list({u["login"]: {i:u[i] for i in u if i != "objectClass"} for u in result}.values())
-    return distinct_results
+    return list({u["login"]: {i:u[i] for i in u if i != "objectClass"} for u in result}.values())
 
 
 def get_users_of_group(group):
@@ -167,8 +161,8 @@ def fetch_member(member_dn):
         connection.unbind()
 
     return {
-        "login": login,
-        "name": name,
-        "email": mail,
+        "login": login[0] if isinstance(login, list) else login,
+        "name": name[0] if isinstance(name, list) else name,
+        "email": mail[0] if isinstance(mail, list) else mail,
         "objectClass": objectClass
     }
