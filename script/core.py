@@ -69,6 +69,7 @@ def read_mapping_from_csv(bind):
             folder_name = line[3]
             folder_uuid = line[4]
             permission = line[5]
+            permission_for_viewer = line[6]
             if not team in result["teams"]:
                 result["teams"][team] = {"ldap": []}
             if not ldap in result["teams"][team]["ldap"]:
@@ -78,6 +79,9 @@ def read_mapping_from_csv(bind):
             access = {"teamId": team, "permission": permission}
             if not access in result["folders"][folder_uuid]["permissions"]:
                 result["folders"][folder_uuid]["permissions"].append(access)
+            viewer_access = {"role": "Viewer", "permission": permission_for_viewer}
+            if permission_for_viewer != "" and not viewer_access in result["folders"][folder_uuid]["permissions"]:
+                result["folders"][folder_uuid]["permissions"].append(viewer_access)
         else:
             is_header = False
     return result
@@ -175,7 +179,7 @@ def update_folders(folders):
             create_folder(folders[folder_id]["name"], folder_id)
         permissions = folders[folder_id]["permissions"]
         for permission in permissions:
-            permission["teamId"] = get_id_of_team(permission["teamId"])
+            permission["teamId"] = get_id_of_team(permission["teamId"]) if not "role" in permission else 0
             permission["permission"] = PERMISSION_MAP[permission["permission"]]
         update_folder_permissions(folder_id, permissions)
 
