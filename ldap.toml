@@ -1,0 +1,40 @@
+[[servers]]
+host = "ldap.forumsys.com"
+port = 389
+use_ssl = false
+start_tls = false
+ssl_skip_verify = false
+
+# Search user bind dn
+bind_dn = "cn=read-only-admin,dc=example,dc=com"
+bind_password = "password"
+
+# Search filter to find users
+search_filter = "(|(uid=%s)(mail=%s))"
+
+# The search base for users
+search_base_dns = ["dc=example,dc=com"]
+
+# Group search configuration
+group_search_filter = "(&(objectClass=groupOfUniqueNames)(uniqueMember=%s))"
+group_search_filter_user_attribute = "dn"
+group_search_base_dns = ["dc=example,dc=com"]
+
+# Attribute mapping
+[servers.attributes]
+name = "cn"
+surname = "sn"
+username = "uid"
+email = "mail"
+
+# Scientists group -> Admin role in Org 1 and grafana admin
+[[servers.group_mappings]]
+group_dn = "ou=scientists,dc=example,dc=com"
+org_role = "Admin"
+grafana_admin = true
+
+# Everyone else -> Viewer
+[[servers.group_mappings]]
+group_dn = "*"
+org_role = "Viewer"
+grafana_admin = false
